@@ -1,22 +1,32 @@
 from BasePage import BasePage
 
 
+
 class FinvizHomePage(BasePage):
 
-    def __init__(self, config_file='config.ini'):
+    driver = None
+
+    def __init__(self, driver_param,config_file='config.ini'):
         super().__init__(config_file)
+        driver_param = self.create_firefox_driver()
+        self.driver = driver_param
 
     def get_url(self):
         return "https://www.finviz.com"
 
+    def open(self):
+        self.driver.get(self.get_url())
+
+    def close(self):
+        self.driver.quit()
+
+    def maximize_window(self):
+        self.driver.maximize_window()
+
 
 if __name__ == "__main__":
     factory = FinvizHomePage('config.ini')
-    driver = factory.create_firefox_driver()
+    factory.open()
+    factory.maximize_window()
+    factory.close()
 
-    # Use the driver
-    driver.get(factory.get_url())
-    print(driver.title)
-
-    # Clean up
-    driver.quit()
