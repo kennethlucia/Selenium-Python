@@ -17,8 +17,18 @@ class FinvizHomePage(BasePage):
     def open(self):
         self.driver.get(self.get_url())
 
-    def close(self):
+    def quit(self):
         self.driver.quit()
+
+    def close(self):
+        self.driver.close()
+
+    def close_tab(self,tab_number):
+        window_handles = self.driver.window_handles
+
+        self.driver.switch_to.window(window_handles[tab_number])
+        print("Tab with Label: " + str("'"+self.driver.title+"'") + " Has Been Closed")
+        self.close()
 
     def maximize_window(self):
         self.driver.maximize_window()
@@ -28,5 +38,6 @@ if __name__ == "__main__":
     factory = FinvizHomePage('config.ini')
     factory.open()
     factory.maximize_window()
-    factory.close()
+    factory.close_tab(1)
+    factory.quit()
 
