@@ -3,7 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 
 from BasePage import BasePage
-
+from SubPages.FinvizStockPage import FinvizStockPage
 
 
 class FinvizHomePage(BasePage):
@@ -15,6 +15,12 @@ class FinvizHomePage(BasePage):
         super().__init__(config_file)
         driver_param = self.create_firefox_driver()
         self.driver = driver_param
+
+    def get_driver(self):
+        return self.driver
+
+    def open(self):
+        self.driver.get(self.get_url())
 
     def get_url(self):
         return "https://www.finviz.com"
@@ -46,13 +52,14 @@ class FinvizHomePage(BasePage):
 
     def enter_value(self,value):
         self.driver.find_element(By.CSS_SELECTOR,'#«r1»').send_keys(value+Keys.ENTER)
-
+        return FinvizStockPage(self.driver)
 
 if __name__ == "__main__":
-    factory = FinvizHomePage('config.ini')
-    factory.open()
-    factory.maximize_window()
-    factory.close_tab(1)
-    factory.enter_value("AAPL")
-    factory.quit()
+    finviz_home_page = FinvizHomePage('config.ini')
+    finviz_home_page.open()
+    finviz_home_page.maximize_window()
+    finviz_home_page.close_tab(1)
+
+    finviz_stock_page = finviz_home_page.enter_value("AAPL")
+    finviz_stock_page.quit()
 
