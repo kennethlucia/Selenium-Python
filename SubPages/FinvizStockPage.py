@@ -85,6 +85,7 @@ class StockPageFundamentalsTable(FinvizStockPage):
     def show_dictionary(self):
         self.inspect_table()
 
-
+    def quit(self):
+        self.driver.quit()
 
 
