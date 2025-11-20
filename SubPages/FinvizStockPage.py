@@ -34,8 +34,10 @@ class StockPageFundamentalsTable(FinvizStockPage):
             #super().__init__(driver, ticker)
             self.driver = driver
             self.ticker = ticker
+
             by = self.locator_dict.get("FUNDAMENTALS_TABLE")[0]
             locate = self.locator_dict.get("FUNDAMENTALS_TABLE")[1]
+            self.driver.implicitly_wait(2)
             self.web_element_list = self.driver.find_elements(by, locate)
 
             size = len(self.web_element_list)
