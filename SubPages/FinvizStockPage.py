@@ -23,7 +23,7 @@ class FinvizStockPage():
 
 
 
-class StockPageFundamentalsTable(FinvizStockPage):
+class StockPageFundamentalsTable():
     driver = None
     ticker = ""
     table = None
@@ -31,7 +31,7 @@ class StockPageFundamentalsTable(FinvizStockPage):
     web_element_list = None
 
     def __init__(self, driver, ticker):
-            #super().__init__(driver, ticker)
+
             self.driver = driver
             self.ticker = ticker
 
@@ -87,5 +87,8 @@ class StockPageFundamentalsTable(FinvizStockPage):
 
     def quit(self):
         self.driver.quit()
+
+    def go_back(self):
+        self.driver.back()
 
 
