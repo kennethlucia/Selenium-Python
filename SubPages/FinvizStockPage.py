@@ -23,7 +23,7 @@ class FinvizStockPage():
 
 
 
-class StockPageFundamentalsTable(FinvizStockPage):
+class StockPageFundamentalsTable():
     driver = None
     ticker = ""
     table = None
@@ -31,11 +31,13 @@ class StockPageFundamentalsTable(FinvizStockPage):
     web_element_list = None
 
     def __init__(self, driver, ticker):
-            #super().__init__(driver, ticker)
+
             self.driver = driver
             self.ticker = ticker
+
             by = self.locator_dict.get("FUNDAMENTALS_TABLE")[0]
             locate = self.locator_dict.get("FUNDAMENTALS_TABLE")[1]
+            self.driver.implicitly_wait(2)
             self.web_element_list = self.driver.find_elements(by, locate)
 
             size = len(self.web_element_list)
@@ -83,6 +85,10 @@ class StockPageFundamentalsTable(FinvizStockPage):
     def show_dictionary(self):
         self.inspect_table()
 
+    def quit(self):
+        self.driver.quit()
 
+    def go_back(self):
+        self.driver.back()
 
 
