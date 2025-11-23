@@ -74,7 +74,7 @@ if __name__ == "__main__":
     #finviz_home_page.click_screener()
     #finviz_home_page.quit()
 
-    finviz_stock_page = finviz_home_page.enter_value("SEARCH_INPUT","AAPL")
+    finviz_stock_page = finviz_home_page.enter_value("AAPL")
     fundamentals_table = finviz_stock_page.get_table()
     fundamentals_table.show_dictionary()
 
