@@ -9,14 +9,15 @@ from SubPages.FinvizStockPage import FinvizStockPage
 class FinvizHomePage(BasePage):
 
     driver = None
-    locator_dict = {"SEARCH_INPUT" : [By.CSS_SELECTOR,'#«r1»'],
-                    "HOME" : [By.XPATH,'//a[@href="/"]'],
-                    "SCREENER" : [By.XPATH,'//a[@href="/screener.ashx"]']}
 
     def __init__(self, driver_param,config_file='config.ini'):
         super().__init__(config_file)
         driver_param = self.create_firefox_driver()
         self.driver = driver_param
+        # Map locators
+        self.search = (By.CSS_SELECTOR, '#«r1»')
+        self.home = (By.XPATH, '//a[@href="/"]')
+        self.screener = (By.XPATH, '//a[@href="/screener.ashx"]')
 
     def get_driver(self):
         return self.driver
@@ -52,21 +53,18 @@ class FinvizHomePage(BasePage):
     def maximize_window(self):
         self.driver.maximize_window()
 
-    def enter_value(self, locator_key,value):
-        locator_value = self.locator_dict[locator_key]
-        self.driver.find_element(locator_value[0],locator_value[1]).send_keys(value+Keys.ENTER)
+    def enter_value(self, value):
+        self.driver.find_element(*self.search).send_keys(value+Keys.ENTER)
 
         return FinvizStockPage(self.driver,value)
 
     def click_screener(self):
-        dict = self.locator_dict
-        by = dict.get("SCREENER")
-        self.driver.find_element(by[0],by[1]).click()
+        self.driver.find_element(*self.screener).click()
 
     def click_home(self):
         dict = self.locator_dict
         by = dict.get("HOME")
-        self.driver.find_element(by[0],by[1]).click()
+        self.driver.find_element(*self.home).click()
 
 if __name__ == "__main__":
     finviz_home_page = FinvizHomePage('config.ini')
