@@ -62,8 +62,6 @@ class FinvizHomePage(BasePage):
         self.driver.find_element(*self.screener).click()
 
     def click_home(self):
-        dict = self.locator_dict
-        by = dict.get("HOME")
         self.driver.find_element(*self.home).click()
 
 if __name__ == "__main__":
