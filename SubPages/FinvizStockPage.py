@@ -27,7 +27,6 @@ class StockPageFundamentalsTable():
     driver = None
     ticker = ""
     table = None
-    locator_dict = {"FUNDAMENTALS_TABLE": [By.CSS_SELECTOR, '.js-snapshot-table-wrapper']}
     web_element_list = None
 
     def __init__(self, driver, ticker):
