@@ -35,10 +35,11 @@ class StockPageFundamentalsTable():
             self.driver = driver
             self.ticker = ticker
 
-            by = self.locator_dict.get("FUNDAMENTALS_TABLE")[0]
-            locate = self.locator_dict.get("FUNDAMENTALS_TABLE")[1]
             self.driver.implicitly_wait(2)
-            self.web_element_list = self.driver.find_elements(by, locate)
+            self.web_element_list = self.driver.find_elements(By.CSS_SELECTOR, '.js-snapshot-table-wrapper')
+            self.columns = (By.XPATH, "//td[contains(@class, 'snapshot-td2 w-[8%] ')]")
+            self.names = (By.XPATH, "//td[@class='snapshot-td2 cursor-pointer w-[7%]']")
+            self.negative_values = (By.XPATH, "//span[@class='color-text is-negative']")
 
             size = len(self.web_element_list)
             if size > 0:
@@ -50,10 +51,9 @@ class StockPageFundamentalsTable():
 
     def inspect_table(self):
 
-
-       column_names = self.table.find_elements(By.XPATH, '//td[@class="snapshot-td2 cursor-pointer w-[7%]"]')
-       column_values = self.table.find_elements(By.XPATH, '//td[@class="snapshot-td2 w-[8%] "]')
-       column_negative_spans = self.table.find_elements(By.XPATH, '//span[@class="color-text is-negative"]')
+       column_names = self.table.find_elements(*self.names)
+       column_values = self.table.find_elements(*self.columns)
+       column_negative_spans = self.table.find_elements(*self.negative_values)
 
        labels_list = []
        values_list = []
