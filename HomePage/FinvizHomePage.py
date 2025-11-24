@@ -6,6 +6,7 @@ from BasePage import BasePage
 from SubPages.FinvizStockPage import FinvizStockPage
 
 
+
 class FinvizHomePage(BasePage):
 
     driver = None
@@ -18,6 +19,7 @@ class FinvizHomePage(BasePage):
         self.search = (By.CSS_SELECTOR, '#«r1»')
         self.home = (By.XPATH, '//a[@href="/"]')
         self.screener = (By.XPATH, '//a[@href="/screener.ashx"]')
+        self.login = (By.XPATH, '//a[@href="/login"]')
 
     def get_driver(self):
         return self.driver
@@ -25,11 +27,11 @@ class FinvizHomePage(BasePage):
     def open(self):
         self.driver.get(self.get_url())
 
+
     def get_url(self):
         return "https://www.finviz.com"
 
-    def open(self):
-        self.driver.get(self.get_url())
+
 
     def quit(self):
         self.driver.quit()
@@ -53,6 +55,8 @@ class FinvizHomePage(BasePage):
     def maximize_window(self):
         self.driver.maximize_window()
 
+
+
     def enter_value(self, value):
         self.driver.find_element(*self.search).send_keys(value+Keys.ENTER)
 
@@ -64,11 +68,20 @@ class FinvizHomePage(BasePage):
     def click_home(self):
         self.driver.find_element(*self.home).click()
 
+    def click_login(self):
+        from SubPages.LoginPage import LoginPage
+
+        self.driver.find_element(*self.login).click()
+        return LoginPage(self.driver)
+
+
 if __name__ == "__main__":
     finviz_home_page = FinvizHomePage('config.ini')
     finviz_home_page.open()
     finviz_home_page.maximize_window()
     finviz_home_page.close_tab(1)
+    finviz_home_page.click_login()
+
     #finviz_home_page.click_screener()
     #finviz_home_page.quit()
 
