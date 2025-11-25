@@ -8,6 +8,8 @@ from pathlib import Path
 
 class BasePage:
 
+    user = None
+    password = None
     def __init__(self, config_file='config.ini'):
         script_dir = Path(__file__).parent
         config_file_path = script_dir.parent / 'config.ini'
@@ -41,6 +43,10 @@ class BasePage:
             driver.install_addon(extension_path, temporary=False)
 
         return driver
+
+    def get_user_login(self ):
+        self.user = self.config.get('user', 'username')
+        self.password = self.config.get('password', 'password')
 
 
 #if __name__ == "__main__":
