@@ -1,21 +1,28 @@
 from selenium.webdriver.common.by import By
 
+from HomePage.BasePage import BasePage
 from HomePage.FinvizHomePage import FinvizHomePage
 
 
-class LoginPage():
+class LoginPage(BasePage):
 
     driver = None
     user = None
     password = None
 
     
-    def __init__(self,driver):
+    def __init__(self,driver,config_file='config.ini'):
         self.driver = driver
         self.email = (By.XPATH, '//input[@name="email"]')
-        self.password = (By.XPATH, '//input[@name="password"]')
+        self.password_locator = (By.XPATH, '//input[@name="password"]')
         self.login = (By.XPATH, '//button[@type="submit"]')
-        self.driver.find_element(*self.email).send_keys("kennethlucia@gmail.com")
-        self.driver.find_element(*self.password).send_keys("Kalu2704!")
+        super().__init__(config_file)
+        self.get_user_login()
+
+        user = self.user
+        password = self.password
+
+        self.driver.find_element(*self.email).send_keys(user)
+        self.driver.find_element(*self.password_locator).send_keys(password)
         self.driver.find_element(*self.login).click()
 
