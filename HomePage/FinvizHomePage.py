@@ -3,8 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 
 from BasePage import BasePage
-from SubPages.FinvizStockPage import FinvizStockPage
-
+from SubPages.FinvizStockPage import FinvizStockPage, FinvizETFPage
 
 
 class FinvizHomePage(BasePage):
@@ -20,6 +19,7 @@ class FinvizHomePage(BasePage):
         self.home = (By.XPATH, '//a[@href="/"]')
         self.screener = (By.XPATH, '//a[@href="/screener.ashx"]')
         self.login = (By.XPATH, '//a[@href="/login"]')
+        self.etf_label = (By.XPATH, '//a[@title="Exchange Traded Fund"]')
 
     def get_driver(self):
         return self.driver
@@ -60,7 +60,11 @@ class FinvizHomePage(BasePage):
     def enter_value(self, value):
         self.driver.find_element(*self.search).send_keys(value+Keys.ENTER)
 
-        return FinvizStockPage(self.driver,value)
+
+        if self.is_etf():
+            return FinvizETFPage(self.driver, value)
+        else:
+            return FinvizStockPage(self.driver,value)
 
     def click_screener(self):
         self.driver.find_element(*self.screener).click()
@@ -74,6 +78,12 @@ class FinvizHomePage(BasePage):
         self.driver.find_element(*self.login).click()
         return LoginPage(self.driver)
 
+    def is_etf(self):
+        self.driver.implicitly_wait(1)
+        if len(self.driver.find_elements(*self.etf_label)) > 0:
+            return True
+        return False
+
 
 if __name__ == "__main__":
     finviz_home_page = FinvizHomePage('config.ini')
@@ -85,8 +95,9 @@ if __name__ == "__main__":
     #finviz_home_page.click_screener()
     #finviz_home_page.quit()
 
-    finviz_stock_page = finviz_home_page.enter_value("AAPL")
-    fundamentals_table = finviz_stock_page.get_table()
+    finviz_equity_page = finviz_home_page.enter_value("AAPL")
+
+    fundamentals_table = finviz_equity_page.get_table()
     fundamentals_table.show_dictionary()
 
     fundamentals_table.go_back()
