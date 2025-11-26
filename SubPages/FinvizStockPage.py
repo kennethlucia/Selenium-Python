@@ -2,14 +2,20 @@ from selenium.common import InvalidSelectorException
 from selenium.webdriver.common.by import By
 
 
-class FinvizStockPage():
+
+class FinvizStockPage:
 
     driver = None
     ticker = None
+    is_stock = None
 
-    def __init__(self, driver, ticker):
+
+    def __init__(self, driver, ticker,is_stock=True):
         self.driver = driver
         self.ticker = ticker
+
+        print(self.ticker + " is a Stock " + str(is_stock))
+
 
 
     def go_back(self):
@@ -19,33 +25,39 @@ class FinvizStockPage():
         self.driver.quit()
 
     def get_table(self):
-        return StockPageFundamentalsTable(self.driver, self.ticker)
+        return FundamentalsTable(self.driver, self.ticker, True)
 
 
 
-class StockPageFundamentalsTable():
+class FundamentalsTable:
     driver = None
     ticker = ""
     table = None
     web_element_list = None
 
-    def __init__(self, driver, ticker):
+    def __init__(self, driver, ticker,is_stock):
 
             self.driver = driver
             self.ticker = ticker
 
             self.driver.implicitly_wait(2)
-            self.web_element_list = self.driver.find_elements(By.CSS_SELECTOR, '.js-snapshot-table-wrapper')
-            self.columns = (By.XPATH, "//td[contains(@class, 'snapshot-td2 w-[8%] ')]")
-            self.names = (By.XPATH, "//td[@class='snapshot-td2 cursor-pointer w-[7%]']")
-            self.negative_values = (By.XPATH, "//span[@class='color-text is-negative']")
 
-            size = len(self.web_element_list)
-            if size > 0:
-               self.table = self.web_element_list[0]
+            if is_stock:
+
+                print("Is a Stock Table")
+                self.web_element_list = self.driver.find_elements(By.CSS_SELECTOR, '.js-snapshot-table-wrapper')
+                self.columns = (By.XPATH, "//td[contains(@class, 'snapshot-td2 w-[8%] ')]")
+                self.names = (By.XPATH, "//td[@class='snapshot-td2 cursor-pointer w-[7%]']")
+                self.negative_values = (By.XPATH, "//span[@class='color-text is-negative']")
+
+                size = len(self.web_element_list)
+                if size > 0:
+                   self.table = self.web_element_list[0]
+                else:
+                   print("On __init__ No Table Element in List")
+                   self.quit()
             else:
-               print("On __init__ No Table Element in List")
-               self.quit()
+                print("Is a ETF Table")
 
 
     def inspect_table(self):
@@ -89,5 +101,26 @@ class StockPageFundamentalsTable():
 
     def go_back(self):
         self.driver.back()
+
+
+
+
+
+class FinvizETFPage:
+    driver = None
+    ticker = ""
+    is_stock = None
+
+
+    def __init__(self, driver, ticker,is_stock = False):
+        self.driver = driver
+        self.ticker = ticker
+        self.driver.implicitly_wait(1)
+
+        print(self.ticker + " is a Stock " + str(is_stock) )
+
+    def get_table(self):
+        return FundamentalsTable(self.driver, self.ticker, False)
+
 
 
