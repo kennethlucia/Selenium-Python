@@ -100,6 +100,5 @@ if __name__ == "__main__":
     fundamentals_table = finviz_equity_page.get_table()
     fundamentals_table.show_dictionary()
 
-    fundamentals_table.go_back()
     fundamentals_table.quit()
 
