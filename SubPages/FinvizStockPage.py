@@ -46,7 +46,7 @@ class FundamentalsTable:
 
                 print("Is a Stock Table")
                 self.web_element_list = self.driver.find_elements(By.CSS_SELECTOR, '.js-snapshot-table-wrapper')
-                self.columns = (By.XPATH, "//td[contains(@class, 'snapshot-td2 w-[8%] ')]")
+                self.columns = (By.XPATH, "//td[contains(@class, 'snapshot-td2 w-[8%]')]")
                 self.names = (By.XPATH, "//td[@class='snapshot-td2 cursor-pointer w-[7%]']")
                 self.negative_values = (By.XPATH, "//span[@class='color-text is-negative']")
 
