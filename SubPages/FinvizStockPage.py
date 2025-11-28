@@ -2,21 +2,14 @@ from selenium.common import InvalidSelectorException
 from selenium.webdriver.common.by import By
 
 
-
 class FinvizStockPage:
-
     driver = None
     ticker = None
     is_stock = None
 
-
-    def __init__(self, driver, ticker,is_stock=True):
+    def __init__(self, driver, ticker):
         self.driver = driver
         self.ticker = ticker
-
-        print(self.ticker + " is a Stock " + str(is_stock))
-
-
 
     def go_back(self):
         self.driver.back()
@@ -25,8 +18,7 @@ class FinvizStockPage:
         self.driver.quit()
 
     def get_table(self):
-        return FundamentalsTable(self.driver, self.ticker, True)
-
+        return FundamentalsTable(self.driver, self.ticker)
 
 
 class FundamentalsTable:
@@ -35,63 +27,58 @@ class FundamentalsTable:
     table = None
     web_element_list = None
 
-    def __init__(self, driver, ticker,is_stock):
+    def __init__(self, driver, ticker):
 
-            self.driver = driver
-            self.ticker = ticker
+        self.driver = driver
+        self.ticker = ticker
+        self.is_stock = None
 
-            self.driver.implicitly_wait(2)
+        self.driver.implicitly_wait(2)
 
-            if is_stock:
+        self.web_element_list = self.driver.find_elements(By.CSS_SELECTOR, '.js-snapshot-table-wrapper')
+        self.columns = (By.XPATH, "//td[contains(@class, 'snapshot-td2 w-[8%]')]")
+        self.names = (By.XPATH, "//td[@class='snapshot-td2 cursor-pointer w-[7%]']")
+        self.negative_values = (By.XPATH, "//span[@class='color-text is-negative']")
 
-                print("Is a Stock Table")
-                self.web_element_list = self.driver.find_elements(By.CSS_SELECTOR, '.js-snapshot-table-wrapper')
-                self.columns = (By.XPATH, "//td[contains(@class, 'snapshot-td2 w-[8%]')]")
-                self.names = (By.XPATH, "//td[@class='snapshot-td2 cursor-pointer w-[7%]']")
-                self.negative_values = (By.XPATH, "//span[@class='color-text is-negative']")
-
-                size = len(self.web_element_list)
-                if size > 0:
-                   self.table = self.web_element_list[0]
-                else:
-                   print("On __init__ No Table Element in List")
-                   self.quit()
+        size = len(self.web_element_list)
+        if size > 0:
+            self.table = self.web_element_list[0]
+            if len(self.table.find_elements(*self.columns)) == 84:
+                self.is_stock = True
             else:
-                print("Is a ETF Table")
-
+                self.is_stock = False
+        else:
+            print("On __init__ No Table Element in List")
+            self.quit()
 
     def inspect_table(self):
 
-       column_names = self.table.find_elements(*self.names)
-       column_values = self.table.find_elements(*self.columns)
-       column_negative_spans = self.table.find_elements(*self.negative_values)
+        column_names = self.table.find_elements(*self.names)
+        column_values = self.table.find_elements(*self.columns)
+        column_negative_spans = self.table.find_elements(*self.negative_values)
 
-       labels_list = []
-       values_list = []
-       negatives_list = []
+        values_list = []
+        negatives_list = []
+        labels_list = []
 
-       for neg in column_negative_spans:
-           negatives_list.append(neg.text)
+        for neg in column_negative_spans:
+            negatives_list.append(neg.text)
 
-       for name in column_names:
-           labels_list.append(name.text)
+        for name in column_names:
+            labels_list.append(name.text)
 
-       for value in column_values:
-           if value.text in negatives_list:
-              if '-' in value.text:
-                 values_list.append(value.text)
-              else:
-                 values_list.append("-"+value.text)
-           else:
-               values_list.append(value.text)
+        for value in column_values:
+            if value.text in negatives_list:
+                if '-' in value.text:
+                    values_list.append(value.text)
+                else:
+                    values_list.append("-" + value.text)
+            else:
+                values_list.append(value.text)
 
-
-       zipped_pairs = zip(labels_list, values_list)
-       fundamentals_dictionary = dict(zipped_pairs)
-       print(fundamentals_dictionary)
-
-
-
+        zipped_pairs = zip(labels_list, values_list)
+        fundamentals_dictionary = dict(zipped_pairs)
+        print(fundamentals_dictionary)
 
     def show_dictionary(self):
         self.inspect_table()
@@ -103,24 +90,15 @@ class FundamentalsTable:
         self.driver.back()
 
 
-
-
-
 class FinvizETFPage:
     driver = None
     ticker = ""
     is_stock = None
 
-
-    def __init__(self, driver, ticker,is_stock = False):
+    def __init__(self, driver, ticker):
         self.driver = driver
         self.ticker = ticker
         self.driver.implicitly_wait(1)
 
-        print(self.ticker + " is a Stock " + str(is_stock) )
-
     def get_table(self):
-        return FundamentalsTable(self.driver, self.ticker, False)
-
-
-
+        return FundamentalsTable(self.driver, self.ticker)
