@@ -27,11 +27,8 @@ class FinvizHomePage(BasePage):
     def open(self):
         self.driver.get(self.get_url())
 
-
     def get_url(self):
         return "https://www.finviz.com"
-
-
 
     def quit(self):
         self.driver.quit()
@@ -54,8 +51,6 @@ class FinvizHomePage(BasePage):
 
     def maximize_window(self):
         self.driver.maximize_window()
-
-
 
     def enter_value(self, value):
         self.driver.find_element(*self.search).send_keys(value+Keys.ENTER)
