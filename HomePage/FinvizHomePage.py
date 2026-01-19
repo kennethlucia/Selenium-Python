@@ -14,12 +14,7 @@ class FinvizHomePage(BasePage):
         super().__init__(config_file)
         driver_param = self.create_firefox_driver()
         self.driver = driver_param
-        # Map locators
-        self.search = (By.CSS_SELECTOR, '#«r1»')
         self.home = (By.XPATH, '//a[@href="/"]')
-        self.screener = (By.XPATH, '//a[@href="/screener.ashx"]')
-        self.login = (By.XPATH, '//a[@href="/login"]')
-        self.etf_label = (By.XPATH, '//a[@title="Exchange Traded Fund"]')
 
     def get_driver(self):
         return self.driver
@@ -53,6 +48,7 @@ class FinvizHomePage(BasePage):
         self.driver.maximize_window()
 
     def enter_value(self, value):
+        self.search = (By.CSS_SELECTOR, '#«r1»')
         self.driver.find_element(*self.search).send_keys(value+Keys.ENTER)
 
 
@@ -62,6 +58,7 @@ class FinvizHomePage(BasePage):
             return FinvizStockPage(self.driver,value)
 
     def click_screener(self):
+        self.screener = (By.XPATH, '//a[@href="/screener.ashx"]')
         self.driver.find_element(*self.screener).click()
 
     def click_home(self):
@@ -70,10 +67,12 @@ class FinvizHomePage(BasePage):
     def click_login(self):
         from SubPages.LoginPage import LoginPage
 
+        self.login = (By.XPATH, '//a[@href="/login"]')
         self.driver.find_element(*self.login).click()
         return LoginPage(self.driver)
 
     def is_etf(self):
+        self.etf_label = (By.XPATH, '//a[@title="Exchange Traded Fund"]')
         self.driver.implicitly_wait(1)
         if len(self.driver.find_elements(*self.etf_label)) > 0:
             return True
