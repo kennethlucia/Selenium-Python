@@ -82,6 +82,16 @@ class FundamentalsTable:
         fundamentals_dictionary = dict(zipped_pairs)
         print(fundamentals_dictionary)
 
+    def get_parameter(self, parameter):
+        # parameter can be P/E, Index.....
+
+        temp = "//td[@class='snapshot-td2 cursor-pointer w-[7%]' and text()='X']/following-sibling::td"
+        temp = temp.replace("X",parameter)
+        self.parameters = self.driver.find_elements(By.XPATH, temp)
+        parameter_text = self.parameters[0].text
+
+        return parameter_text
+
     def show_dictionary(self):
         self.inspect_table()
 
