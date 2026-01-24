@@ -89,10 +89,17 @@ if __name__ == "__main__":
     #finviz_home_page.click_screener()
     #finviz_home_page.quit()
 
-    finviz_equity_page = finviz_home_page.enter_value("AAPL")
+    finviz_equity_page = finviz_home_page.enter_value("PGR")
 
     fundamentals_table = finviz_equity_page.get_table()
-    fundamentals_table.show_dictionary()
+
+    price_to_earnings = fundamentals_table.get_parameter("P/E")
+    print(f"Price to Earnings: {price_to_earnings}")
+
+    earnings = fundamentals_table.get_earnings_date()
+    print(f"Earnings Date Before Market Opens: {earnings}")
+
+    #fundamentals_table.show_dictionary()
 
     fundamentals_table.quit()
 
