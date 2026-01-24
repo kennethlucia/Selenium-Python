@@ -32,6 +32,7 @@ class FundamentalsTable:
         self.driver = driver
         self.ticker = ticker
         self.is_stock = None
+        self.parameters = None
 
         self.driver.implicitly_wait(2)
 
@@ -87,6 +88,14 @@ class FundamentalsTable:
 
         temp = "//td[@class='snapshot-td2 cursor-pointer w-[7%]' and text()='X']/following-sibling::td"
         temp = temp.replace("X",parameter)
+        self.parameters = self.driver.find_elements(By.XPATH, temp)
+        parameter_text = self.parameters[0].text
+
+        return parameter_text
+
+    def get_earnings_date(self):
+
+        temp = " //td[contains(@data-boxover,'After Market Close')or contains(@data-boxover,'Before Market Open')]/following-sibling::td"
         self.parameters = self.driver.find_elements(By.XPATH, temp)
         parameter_text = self.parameters[0].text
 
