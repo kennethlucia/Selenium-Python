@@ -90,14 +90,23 @@ if __name__ == "__main__":
     #finviz_home_page.quit()
 
     finviz_equity_page = finviz_home_page.enter_value("PGR")
+    stock_ticker = finviz_equity_page.ticker
+    print(f"Stock Ticker: {stock_ticker}")
+
 
     fundamentals_table = finviz_equity_page.get_table()
+
+    price =fundamentals_table.get_parameter("Price")
+    print(f"Price: {price}")
 
     price_to_earnings = fundamentals_table.get_parameter("P/E")
     print(f"Price to Earnings: {price_to_earnings}")
 
     earnings = fundamentals_table.get_earnings_date()
-    print(f"Earnings Date Before Market Opens: {earnings}")
+    if earnings.split(" ")[2] == "BMO":
+        print(f"Earnings Date Before Market Opens: {earnings}")
+    else:
+        print(f"Earnings Date After Market Closes: {earnings}")
 
     #fundamentals_table.show_dictionary()
 
