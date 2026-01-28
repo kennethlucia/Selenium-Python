@@ -89,9 +89,12 @@ if __name__ == "__main__":
     #finviz_home_page.click_screener()
     #finviz_home_page.quit()
 
-    finviz_equity_page = finviz_home_page.enter_value("PGR")
+    finviz_equity_page = finviz_home_page.enter_value("MTCH")
 
     fundamentals_table = finviz_equity_page.get_table()
+
+    equity_name = fundamentals_table.get_equity_name()
+    print(f"The Stock's Company Name is: {equity_name}")
 
     price_to_earnings = fundamentals_table.get_parameter("P/E")
     print(f"Price to Earnings: {price_to_earnings}")
