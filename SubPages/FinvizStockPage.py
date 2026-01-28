@@ -101,6 +101,13 @@ class FundamentalsTable:
 
         return parameter_text
 
+    def get_equity_name(self):
+        temp = "//h2[@class='quote-header_ticker-wrapper_company text-xl']/a[@class='tab-link block truncate']"
+        self.parameters = self.driver.find_elements(By.XPATH, temp)
+        parameter_text = self.parameters[0].text
+
+        return parameter_text
+
     def show_dictionary(self):
         self.inspect_table()
 
