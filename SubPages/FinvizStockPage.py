@@ -99,6 +99,14 @@ class FundamentalsTable:
         self.parameters = self.driver.find_elements(By.XPATH, temp)
         parameter_text = self.parameters[0].text
 
+        before_or_after = parameter_text.split(" ")[2]
+        if before_or_after == "BMO":
+            parameter_text = "Earnings Before Market Open is " + parameter_text.split(" ")[0] + " " + \
+                             parameter_text.split(" ")[1]
+        else:
+            parameter_text = "Earnings After Market Closes is " + parameter_text.split(" ")[0] + " " + \
+                             parameter_text.split(" ")[1]
+
         return parameter_text
 
     def get_equity_name(self):
