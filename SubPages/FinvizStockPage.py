@@ -20,6 +20,18 @@ class FinvizStockPage:
     def get_table(self):
         return FundamentalsTable(self.driver, self.ticker)
 
+    def get_sector(self):
+        sector_web_element_list = self.driver.find_elements(By.XPATH,"//a[contains(@href,'screener.ashx?v=111&f=sec_')]")
+        sector_web_element = sector_web_element_list[0]
+        sector = sector_web_element.text
+        return sector
+
+    def get_industry(self):
+        industry_web_element_list = self.driver.find_elements(By.XPATH, "//a[contains(@href,'screener.ashx?v=111&f=ind_')]")
+        industry_web_element = industry_web_element_list[0]
+        industry = industry_web_element.text
+        return industry
+
 
 class FundamentalsTable:
     driver = None
