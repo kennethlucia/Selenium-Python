@@ -89,9 +89,15 @@ if __name__ == "__main__":
     #finviz_home_page.click_screener()
     #finviz_home_page.quit()
 
-    finviz_equity_page = finviz_home_page.enter_value("MTCH")
+    finviz_equity_page = finviz_home_page.enter_value("GOOG")
+    stock_ticker = finviz_equity_page.ticker
+    print(f"Stock Ticker: {stock_ticker}")
+
 
     fundamentals_table = finviz_equity_page.get_table()
+
+    price =fundamentals_table.get_parameter("Price")
+    print(f"Price: {price}")
 
     equity_name = fundamentals_table.get_equity_name()
     print(f"The Stock's Company Name is: {equity_name}")
@@ -100,7 +106,7 @@ if __name__ == "__main__":
     print(f"Price to Earnings: {price_to_earnings}")
 
     earnings = fundamentals_table.get_earnings_date()
-    print(f"Earnings Date Before Market Opens: {earnings}")
+    print(f"{earnings}")
 
     #fundamentals_table.show_dictionary()
 
