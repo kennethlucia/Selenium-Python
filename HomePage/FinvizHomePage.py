@@ -3,20 +3,18 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 
 from BasePage import BasePage
-from SubPages.FinvizStockPage import FinvizStockPage
+from SubPages.FinvizStockPage import FinvizStockPage, FinvizETFPage
 
 
 class FinvizHomePage(BasePage):
 
     driver = None
-    locator_dict = {"SEARCH_INPUT" : [By.CSS_SELECTOR,'#«r1»'],
-                    "HOME" : [By.XPATH,'//a[@href="/"]'],
-                    "SCREENER" : [By.XPATH,'//a[@href="/screener.ashx"]']}
 
     def __init__(self, driver_param,config_file='config.ini'):
         super().__init__(config_file)
         driver_param = self.create_firefox_driver()
         self.driver = driver_param
+        self.home = (By.XPATH, '//a[@href="/"]')
 
     def get_driver(self):
         return self.driver
@@ -26,9 +24,6 @@ class FinvizHomePage(BasePage):
 
     def get_url(self):
         return "https://www.finviz.com"
-
-    def open(self):
-        self.driver.get(self.get_url())
 
     def quit(self):
         self.driver.quit()
@@ -52,34 +47,68 @@ class FinvizHomePage(BasePage):
     def maximize_window(self):
         self.driver.maximize_window()
 
-    def enter_value(self, locator_key,value):
-        locator_value = self.locator_dict[locator_key]
-        self.driver.find_element(locator_value[0],locator_value[1]).send_keys(value+Keys.ENTER)
+    def enter_value(self, value):
+        self.search = (By.CSS_SELECTOR, '#«r1»')
+        self.driver.find_element(*self.search).send_keys(value+Keys.ENTER)
 
-        return FinvizStockPage(self.driver,value)
+
+        if self.is_etf():
+            return FinvizETFPage(self.driver, value)
+        else:
+            return FinvizStockPage(self.driver,value)
 
     def click_screener(self):
-        dict = self.locator_dict
-        by = dict.get("SCREENER")
-        self.driver.find_element(by[0],by[1]).click()
+        self.screener = (By.XPATH, '//a[@href="/screener.ashx"]')
+        self.driver.find_element(*self.screener).click()
 
     def click_home(self):
-        dict = self.locator_dict
-        by = dict.get("HOME")
-        self.driver.find_element(by[0],by[1]).click()
+        self.driver.find_element(*self.home).click()
+
+    def click_login(self):
+        from SubPages.LoginPage import LoginPage
+
+        self.login = (By.XPATH, '//a[@href="/login"]')
+        self.driver.find_element(*self.login).click()
+        return LoginPage(self.driver)
+
+    def is_etf(self):
+        self.etf_label = (By.XPATH, '//a[@title="Exchange Traded Fund"]')
+        self.driver.implicitly_wait(1)
+        if len(self.driver.find_elements(*self.etf_label)) > 0:
+            return True
+        return False
+
 
 if __name__ == "__main__":
     finviz_home_page = FinvizHomePage('config.ini')
     finviz_home_page.open()
     finviz_home_page.maximize_window()
     finviz_home_page.close_tab(1)
+    finviz_home_page.click_login()
+
     #finviz_home_page.click_screener()
     #finviz_home_page.quit()
 
-    finviz_stock_page = finviz_home_page.enter_value("SEARCH_INPUT","AAPL")
-    fundamentals_table = finviz_stock_page.get_table()
-    fundamentals_table.show_dictionary()
+    finviz_equity_page = finviz_home_page.enter_value("GOOG")
+    stock_ticker = finviz_equity_page.ticker
+    print(f"Stock Ticker: {stock_ticker}")
 
-    fundamentals_table.go_back()
+
+    fundamentals_table = finviz_equity_page.get_table()
+
+    price =fundamentals_table.get_parameter("Price")
+    print(f"Price: {price}")
+
+    equity_name = fundamentals_table.get_equity_name()
+    print(f"The Stock's Company Name is: {equity_name}")
+
+    price_to_earnings = fundamentals_table.get_parameter("P/E")
+    print(f"Price to Earnings: {price_to_earnings}")
+
+    earnings = fundamentals_table.get_earnings_date()
+    print(f"{earnings}")
+
+    #fundamentals_table.show_dictionary()
+
     fundamentals_table.quit()
 

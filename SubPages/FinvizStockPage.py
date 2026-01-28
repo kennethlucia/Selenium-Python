@@ -2,15 +2,14 @@ from selenium.common import InvalidSelectorException
 from selenium.webdriver.common.by import By
 
 
-class FinvizStockPage():
-
+class FinvizStockPage:
     driver = None
     ticker = None
+    is_stock = None
 
     def __init__(self, driver, ticker):
         self.driver = driver
         self.ticker = ticker
-
 
     def go_back(self):
         self.driver.back()
@@ -19,68 +18,103 @@ class FinvizStockPage():
         self.driver.quit()
 
     def get_table(self):
-        return StockPageFundamentalsTable(self.driver, self.ticker)
+        return FundamentalsTable(self.driver, self.ticker)
 
 
-
-class StockPageFundamentalsTable():
+class FundamentalsTable:
     driver = None
     ticker = ""
     table = None
-    locator_dict = {"FUNDAMENTALS_TABLE": [By.CSS_SELECTOR, '.js-snapshot-table-wrapper']}
     web_element_list = None
 
     def __init__(self, driver, ticker):
 
-            self.driver = driver
-            self.ticker = ticker
+        self.driver = driver
+        self.ticker = ticker
+        self.is_stock = None
+        self.parameters = None
 
-            by = self.locator_dict.get("FUNDAMENTALS_TABLE")[0]
-            locate = self.locator_dict.get("FUNDAMENTALS_TABLE")[1]
-            self.driver.implicitly_wait(2)
-            self.web_element_list = self.driver.find_elements(by, locate)
+        self.driver.implicitly_wait(2)
 
-            size = len(self.web_element_list)
-            if size > 0:
-               self.table = self.web_element_list[0]
-            else:
-               print("On __init__ No Table Element in List")
-               self.quit()
 
 
     def inspect_table(self):
 
+        self.web_element_list = self.driver.find_elements(By.CSS_SELECTOR, '.js-snapshot-table-wrapper')
+        self.columns = (By.XPATH, "//td[contains(@class, 'snapshot-td2 w-[8%]')]")
+        self.names = (By.XPATH, "//td[@class='snapshot-td2 cursor-pointer w-[7%]']")
+        self.negative_values = (By.XPATH, "//span[@class='color-text is-negative']")
 
-       column_names = self.table.find_elements(By.XPATH, '//td[@class="snapshot-td2 cursor-pointer w-[7%]"]')
-       column_values = self.table.find_elements(By.XPATH, '//td[@class="snapshot-td2 w-[8%] "]')
-       column_negative_spans = self.table.find_elements(By.XPATH, '//span[@class="color-text is-negative"]')
+        size = len(self.web_element_list)
+        if size > 0:
+            self.table = self.web_element_list[0]
+            if len(self.table.find_elements(*self.columns)) == 84:
+                self.is_stock = True
+            else:
+                self.is_stock = False
+        else:
+            print("On __init__ No Table Element in List")
+            self.quit()
 
-       labels_list = []
-       values_list = []
-       negatives_list = []
+        column_names = self.table.find_elements(*self.names)
+        column_values = self.table.find_elements(*self.columns)
+        column_negative_spans = self.table.find_elements(*self.negative_values)
 
-       for neg in column_negative_spans:
-           negatives_list.append(neg.text)
+        values_list = []
+        negatives_list = []
+        labels_list = []
 
-       for name in column_names:
-           labels_list.append(name.text)
+        for neg in column_negative_spans:
+            negatives_list.append(neg.text)
 
-       for value in column_values:
-           if value.text in negatives_list:
-              if '-' in value.text:
-                 values_list.append(value.text)
-              else:
-                 values_list.append("-"+value.text)
-           else:
-               values_list.append(value.text)
+        for name in column_names:
+            labels_list.append(name.text)
 
+        for value in column_values:
+            if value.text in negatives_list:
+                if '-' in value.text:
+                    values_list.append(value.text)
+                else:
+                    values_list.append("-" + value.text)
+            else:
+                values_list.append(value.text)
 
-       zipped_pairs = zip(labels_list, values_list)
-       fundamentals_dictionary = dict(zipped_pairs)
-       print(fundamentals_dictionary)
+        zipped_pairs = zip(labels_list, values_list)
+        fundamentals_dictionary = dict(zipped_pairs)
+        print(fundamentals_dictionary)
 
+    def get_parameter(self, parameter):
+        # parameter can be P/E, Index.....
 
+        temp = "//td[@class='snapshot-td2 cursor-pointer w-[7%]' and text()='X']/following-sibling::td"
+        temp = temp.replace("X",parameter)
+        self.parameters = self.driver.find_elements(By.XPATH, temp)
+        parameter_text = self.parameters[0].text
 
+        return parameter_text
+
+    def get_earnings_date(self):
+
+        temp = " //td[contains(@data-boxover,'After Market Close')or contains(@data-boxover,'Before Market Open')]/following-sibling::td"
+        self.parameters = self.driver.find_elements(By.XPATH, temp)
+        parameter_text = self.parameters[0].text
+
+        before_or_after = parameter_text.split(" ")[2]
+        if before_or_after == "BMO":
+            parameter_text = "Earnings Before Market Open is " + parameter_text.split(" ")[0] + " " + \
+                             parameter_text.split(" ")[1]
+        else:
+            parameter_text = "Earnings After Market Closes is " + parameter_text.split(" ")[0] + " " + \
+                             parameter_text.split(" ")[1]
+
+        return parameter_text
+
+    def get_equity_name(self):
+        temp = "//h2[@class='quote-header_ticker-wrapper_company text-xl']/a[@class='tab-link block truncate']"
+        self.parameters = self.driver.find_elements(By.XPATH, temp)
+        parameter_text = self.parameters[0].text
+
+        return parameter_text
 
     def show_dictionary(self):
         self.inspect_table()
@@ -92,3 +126,15 @@ class StockPageFundamentalsTable():
         self.driver.back()
 
 
+class FinvizETFPage:
+    driver = None
+    ticker = ""
+    is_stock = None
+
+    def __init__(self, driver, ticker):
+        self.driver = driver
+        self.ticker = ticker
+        self.driver.implicitly_wait(1)
+
+    def get_table(self):
+        return FundamentalsTable(self.driver, self.ticker)
