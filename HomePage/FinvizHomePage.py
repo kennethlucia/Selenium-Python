@@ -108,6 +108,9 @@ if __name__ == "__main__":
     earnings = fundamentals_table.get_earnings_date()
     print(f"{earnings}")
 
+    print(f"{equity_name} is in sector: {finviz_equity_page.get_sector()}")
+    print(f"{equity_name} is in industry: {finviz_equity_page.get_industry()}")
+
     #fundamentals_table.show_dictionary()
 
     fundamentals_table.quit()
