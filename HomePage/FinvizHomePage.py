@@ -89,27 +89,33 @@ if __name__ == "__main__":
     #finviz_home_page.click_screener()
     #finviz_home_page.quit()
 
-    finviz_equity_page = finviz_home_page.enter_value("GOOG")
-    stock_ticker = finviz_equity_page.ticker
-    print(f"Stock Ticker: {stock_ticker}")
+    equities_list = ["GOOG","PGR"]
+
+    for equity in equities_list:
+
+        finviz_equity_page = finviz_home_page.enter_value(equity)
+        stock_ticker = finviz_equity_page.ticker
+        print("")
+        print(f"Stock Ticker: {stock_ticker}")
 
 
-    fundamentals_table = finviz_equity_page.get_table()
+        fundamentals_table = finviz_equity_page.get_table()
 
-    price =fundamentals_table.get_parameter("Price")
-    print(f"Price: {price}")
+        price =fundamentals_table.get_parameter("Price")
+        print(f"Price: {price}")
 
-    equity_name = fundamentals_table.get_equity_name()
-    print(f"The Stock's Company Name is: {equity_name}")
+        equity_name = fundamentals_table.get_equity_name()
+        print(f"The Stock's Company Name is: {equity_name}")
 
-    price_to_earnings = fundamentals_table.get_parameter("P/E")
-    print(f"Price to Earnings: {price_to_earnings}")
+        price_to_earnings = fundamentals_table.get_parameter("P/E")
+        print(f"Price to Earnings: {price_to_earnings}")
 
-    earnings = fundamentals_table.get_earnings_date()
-    print(f"{earnings}")
+        earnings = fundamentals_table.get_earnings_date()
+        print(f"{earnings}")
 
-    print(f"{equity_name} is in sector: {finviz_equity_page.get_sector()}")
-    print(f"{equity_name} is in industry: {finviz_equity_page.get_industry()}")
+        print(f"{equity_name} is in sector: {finviz_equity_page.get_sector()}")
+        print(f"{equity_name} is in industry: {finviz_equity_page.get_industry()}")
+        print("")
 
     #fundamentals_table.show_dictionary()
 
