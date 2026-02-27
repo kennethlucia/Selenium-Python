@@ -17,11 +17,15 @@ class LoginPage(BasePage):
         self.email = (By.XPATH, '//input[@name="email"]')
         self.password_locator = (By.XPATH, '//input[@name="password"]')
         self.login = (By.XPATH, '//button[@type="submit"]')
+        self.continue_on = (By.XPATH, '//a[@href="/try-free-trial?handler=continue"] ')
         super().__init__(config_file)
         self.get_user_login()
 
         user = self.user
         password = self.password
+
+        if len(self.driver.find_elements(*self.continue_on)) > 0:
+            self.driver.find_elements(*self.continue_on).click()
 
         self.driver.find_element(*self.choose_email).click()
         self.driver.find_element(*self.email).send_keys(user)
