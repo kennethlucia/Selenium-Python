@@ -12,6 +12,7 @@ class FinvizHomePage(BasePage):
 
     def __init__(self, driver_param,config_file='config.ini'):
         super().__init__(config_file)
+        self.login = None
         driver_param = self.create_firefox_driver()
         self.driver = driver_param
         self.home = (By.XPATH, '//a[@href="/"]')
@@ -67,14 +68,21 @@ class FinvizHomePage(BasePage):
     def click_login(self):
         from SubPages.LoginPage import LoginPage
 
-        self.login = (By.XPATH, '//a[@href="/login"]')
-        self.driver.find_element(*self.login).click()
-        return LoginPage(self.driver)
+        if not self.is_in_account():
+            self.login = (By.XPATH, '//a[@href="/login"]')
+            self.driver.find_element(*self.login).click()
+            return LoginPage(self.driver)
 
     def is_etf(self):
         self.etf_label = (By.XPATH, '//a[@title="Exchange Traded Fund"]')
         self.driver.implicitly_wait(1)
         if len(self.driver.find_elements(*self.etf_label)) > 0:
+            return True
+        return False
+
+    def is_in_account(self):
+        in_account = self.config.getboolean('browsers', 'logged_in')
+        if in_account:
             return True
         return False
 
