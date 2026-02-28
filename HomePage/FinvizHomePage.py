@@ -49,7 +49,7 @@ class FinvizHomePage(BasePage):
         self.driver.maximize_window()
 
     def enter_value(self, value):
-        self.search = (By.CSS_SELECTOR, '#«r1»')
+        self.search = (By.ID, '_r_1_')
         self.driver.find_element(*self.search).send_keys(value+Keys.ENTER)
 
 
