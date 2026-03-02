@@ -86,6 +86,11 @@ class FinvizHomePage(BasePage):
             return True
         return False
 
+    def element_exists(self,web_element):
+        if len(self.driver.find_elements(*web_element)) > 0:
+            return True
+        return False
+
 
 if __name__ == "__main__":
     finviz_home_page = FinvizHomePage('config.ini')
@@ -96,6 +101,8 @@ if __name__ == "__main__":
 
     #finviz_home_page.click_screener()
     #finviz_home_page.quit()
+
+    finviz_home_page.element_exists(finviz_home_page.home)
 
     equities_list = ["GOOG","PGR"]
 
