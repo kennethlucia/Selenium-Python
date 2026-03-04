@@ -1,10 +1,9 @@
 from selenium.common import NoSuchElementException
 from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
 
 from BasePage import BasePage
-from SubPages.FinvizStockPage import FinvizStockPage, FinvizETFPage
+from HomePage.FinvizStockPage import FinvizStockPage, FinvizETFPage
 
 
 class FinvizHomePage(BasePage):
@@ -77,7 +76,7 @@ class FinvizHomePage(BasePage):
         self.driver.find_element(*self.home).click()
 
     def click_login(self):
-        from SubPages.LoginPage import LoginPage
+        from HomePage.LoginPage import LoginPage
 
         if not self.is_in_account():
             self.driver.find_element(*self.login).click()
