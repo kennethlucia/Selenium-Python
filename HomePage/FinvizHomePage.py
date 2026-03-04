@@ -1,3 +1,4 @@
+from selenium.common import NoSuchElementException
 from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
@@ -15,7 +16,17 @@ class FinvizHomePage(BasePage):
         self.login = None
         driver_param = self.create_firefox_driver()
         self.driver = driver_param
-        self.home = (By.XPATH, '//a[@href="/"]')
+
+        # locators
+        self.home = (By.XPATH,'//a[@href="/"]')
+        self.login = (By.XPATH,'//a[@href="/login"]')
+        self.search = (By.ID, '_r_1_')
+        self.screener = (By.XPATH, '//a[@href="/screener.ashx"]')
+
+        # This locator only shows up when searching for an ETF equity symbol
+        self.etf_label = (By.XPATH, '//a[@title="Exchange Traded Fund"]')
+
+        self.all_locators = [self.home,self.login,self.search,self.screener]
 
     def get_driver(self):
         return self.driver
@@ -45,13 +56,14 @@ class FinvizHomePage(BasePage):
         window_handles = self.driver.window_handles
         self.driver.switch_to.window(window_handles[0])
 
+        for a_locator in self.all_locators:
+            self.element_exists(a_locator)
+
     def maximize_window(self):
         self.driver.maximize_window()
 
     def enter_value(self, value):
-        self.search = (By.ID, '_r_1_')
         self.driver.find_element(*self.search).send_keys(value+Keys.ENTER)
-
 
         if self.is_etf():
             return FinvizETFPage(self.driver, value)
@@ -59,7 +71,6 @@ class FinvizHomePage(BasePage):
             return FinvizStockPage(self.driver,value)
 
     def click_screener(self):
-        self.screener = (By.XPATH, '//a[@href="/screener.ashx"]')
         self.driver.find_element(*self.screener).click()
 
     def click_home(self):
@@ -69,12 +80,10 @@ class FinvizHomePage(BasePage):
         from SubPages.LoginPage import LoginPage
 
         if not self.is_in_account():
-            self.login = (By.XPATH, '//a[@href="/login"]')
             self.driver.find_element(*self.login).click()
             return LoginPage(self.driver)
 
     def is_etf(self):
-        self.etf_label = (By.XPATH, '//a[@title="Exchange Traded Fund"]')
         self.driver.implicitly_wait(1)
         if len(self.driver.find_elements(*self.etf_label)) > 0:
             return True
@@ -87,9 +96,10 @@ class FinvizHomePage(BasePage):
         return False
 
     def element_exists(self,web_element):
-        if len(self.driver.find_elements(*web_element)) > 0:
-            return True
-        return False
+        try:
+            self.driver.find_element(*web_element)
+        except NoSuchElementException as e:
+            print(e)
 
 
 if __name__ == "__main__":
@@ -98,11 +108,6 @@ if __name__ == "__main__":
     finviz_home_page.maximize_window()
     finviz_home_page.close_tab(1)
     finviz_home_page.click_login()
-
-    #finviz_home_page.click_screener()
-    #finviz_home_page.quit()
-
-    finviz_home_page.element_exists(finviz_home_page.home)
 
     equities_list = ["GOOG","PGR"]
 
@@ -113,10 +118,9 @@ if __name__ == "__main__":
         print("")
         print(f"Stock Ticker: {stock_ticker}")
 
-
         fundamentals_table = finviz_equity_page.get_table()
 
-        price =fundamentals_table.get_parameter("Price")
+        price = fundamentals_table.get_parameter("Price")
         print(f"Price: {price}")
 
         equity_name = fundamentals_table.get_equity_name()
@@ -131,8 +135,6 @@ if __name__ == "__main__":
         print(f"{equity_name} is in sector: {finviz_equity_page.get_sector()}")
         print(f"{equity_name} is in industry: {finviz_equity_page.get_industry()}")
         print("")
-
-    #fundamentals_table.show_dictionary()
 
     fundamentals_table.quit()
 
