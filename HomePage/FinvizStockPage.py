@@ -107,7 +107,7 @@ class FundamentalsTable:
 
     def get_earnings_date(self):
 
-        temp = " //td[contains(@data-boxover,'After Market Close')or contains(@data-boxover,'Before Market Open')]/following-sibling::td"
+        temp = "//td[@data-boxover-html='Earnings date<br><br>BMO = Before Market Open<br>AMC = After Market Close']/following-sibling::td"
         self.parameters = self.driver.find_elements(By.XPATH, temp)
         parameter_text = self.parameters[0].text
 
