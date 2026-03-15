@@ -38,7 +38,7 @@ class BasePage:
         # Create and return the driver
         driver = webdriver.Firefox(service=service, options=options)
 
-        if self.config.has_option('driver', 'adblock_extension_path'):
+        if self.config.getboolean('browsers', 'ad_block'):
             extension_path = self.config.get('driver', 'adblock_extension_path')
             driver.install_addon(extension_path, temporary=False)
 
