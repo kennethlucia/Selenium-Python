@@ -1,6 +1,7 @@
 from selenium.common import NoSuchElementException
 from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.select import Select
 
 from BasePage import BasePage
 from HomePage.FinvizStockPage import FinvizStockPage, FinvizETFPage
@@ -24,6 +25,9 @@ class FinvizHomePage(BasePage):
 
         # This locator only shows up when searching for an ETF equity symbol
         self.etf_label = (By.XPATH, '//a[@title="Exchange Traded Fund"]')
+
+        # temporary xpath to test select dropdown
+        self.dividend_yield = (By.XPATH, '//select[@id="fs_fa_div"]')
 
         self.all_locators = [self.home,self.login,self.search,self.screener]
 
@@ -100,6 +104,11 @@ class FinvizHomePage(BasePage):
         except NoSuchElementException as e:
             print(e)
 
+    def create_api_url(self):
+        url = self.driver.current_url
+        filter = url.split('?')[1]
+        return self.api_url + filter + '&auth=' + self.api_key
+
 
 if __name__ == "__main__":
     finviz_home_page = FinvizHomePage('config.ini')
@@ -107,6 +116,12 @@ if __name__ == "__main__":
     finviz_home_page.maximize_window()
     finviz_home_page.close_tab(1)
     finviz_home_page.click_login()
+
+    finviz_home_page.click_screener()
+
+    url_str = finviz_home_page.create_api_url()
+
+
 
     equities_list = ["GOOG","PGR"]
 
