@@ -13,9 +13,12 @@ class BasePage:
     def __init__(self, config_file='config.ini'):
         script_dir = Path(__file__).parent
         config_file_path = script_dir.parent / 'config.ini'
-        print(config_file_path)
+
         self.config = configparser.ConfigParser()
         self.config.read(config_file_path)
+        self.api_key = self.config.get('api', 'key')
+        self.csv_file = script_dir.parent / 'export.csv'
+        self.api_url = 'https://elite.finviz.com/export.ashx?'
 
     def create_firefox_driver(self):
         # Get GeckoDriver path from INI file
