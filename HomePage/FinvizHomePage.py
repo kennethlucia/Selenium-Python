@@ -119,10 +119,6 @@ if __name__ == "__main__":
 
     finviz_home_page.click_screener()
 
-    url_str = finviz_home_page.create_api_url()
-
-
-
     equities_list = ["GOOG","PGR"]
 
     for equity in equities_list:
