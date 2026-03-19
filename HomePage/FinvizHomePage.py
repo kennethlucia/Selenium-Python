@@ -25,6 +25,10 @@ class FinvizHomePage(BasePage):
         self.login = (By.XPATH, '//a[@href="/login"]')
         self.search = (By.ID, '_r_1_')
         self.screener = (By.XPATH, '//a[@href="/screener.ashx"]')
+        self.decriptive = (By.XPATH, "//div[text()='Descriptive']")
+        self.fundamental = (By.XPATH, "//div[text()='Fundamental']")
+        self.technical = (By.XPATH, "//div[text()='Technical']")
+        self.etf = (By.XPATH, "//div[text()='ETF']")
 
         # This locator only shows up when searching for an ETF equity symbol
         self.etf_label = (By.XPATH, '//a[@title="Exchange Traded Fund"]')
@@ -76,6 +80,16 @@ class FinvizHomePage(BasePage):
     def click_screener(self):
         self.driver.find_element(*self.screener).click()
         return ScreenerPage(self.driver)
+    def click_descriptive(self):
+        self.driver.find_element(*self.decriptive).click()
+    def click_fundamental(self):
+        self.driver.find_element(*self.fundamental).click()
+    def click_etf(self):
+        self.driver.find_element(*self.etf).click()
+    def click_technical(self):
+        self.driver.find_element(*self.technical).click()
+
+
 
     def click_home(self):
         self.driver.find_element(*self.home).click()
@@ -149,6 +163,26 @@ class ScreenerPage:
     def click_etfperformance(self):
         self.driver.find_element(*self.etfperf).click()
 
+class DescriptiveScreener:
+
+    def __init__(self, driver):
+        self.driver = driver
+
+class FundamentalScreener:
+
+    def __init__(self, driver):
+        self.driver = driver
+
+class TechnicalScreener:
+
+    def __init__(self, driver):
+        self.driver = driver
+
+class ETFScreener:
+
+    def __init__(self, driver):
+        self.driver = driver
+
 
 if __name__ == "__main__":
     finviz_home_page = FinvizHomePage('config.ini')
@@ -165,6 +199,11 @@ if __name__ == "__main__":
     screener_page.click_overview()
     screener_page.click_financial()
     screener_page.click_ownership()
+
+    finviz_home_page.click_descriptive()
+    finviz_home_page.click_fundamental()
+    finviz_home_page.click_technical()
+    finviz_home_page.click_etf()
 
     equities_list = ["GOOG", "PGR"]
 
