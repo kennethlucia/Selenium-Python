@@ -124,6 +124,9 @@ class ScreenerPage:
         self.valuation = (By.XPATH, "//a[text()='Valuation']")
         self.financial = (By.XPATH, "//a[text()='Financial']")
         self.ownership = (By.XPATH, "//a[text()='Ownership']")
+        self.performance = (By.XPATH, "//a[text()='Performance']")
+        self.technical = (By.XPATH, "//a[text()='Technical']")
+        self.etfperf = (By.XPATH, "//a[text()='ETF Perf']")
 
     def click_overview(self):
         self.driver.find_element(*self.overview).click()
@@ -137,6 +140,15 @@ class ScreenerPage:
     def click_ownership(self):
         self.driver.find_element(*self.ownership).click()
 
+    def click_performance(self):
+        self.driver.find_element(*self.performance).click()
+
+    def click_technical(self):
+        self.driver.find_element(*self.technical).click()
+
+    def click_etfperformance(self):
+        self.driver.find_element(*self.etfperf).click()
+
 
 if __name__ == "__main__":
     finviz_home_page = FinvizHomePage('config.ini')
@@ -147,6 +159,12 @@ if __name__ == "__main__":
 
     screener_page = finviz_home_page.click_screener()
     screener_page.click_valuation()
+    screener_page.click_technical()
+    screener_page.click_performance()
+    screener_page.click_etfperformance()
+    screener_page.click_overview()
+    screener_page.click_financial()
+    screener_page.click_ownership()
 
     equities_list = ["GOOG", "PGR"]
 
