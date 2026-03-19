@@ -4,22 +4,25 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
 
 from BasePage import BasePage
-from HomePage.FinvizStockPage import FinvizStockPage, FinvizETFPage
+from FinvizStockPage import FinvizStockPage, FinvizETFPage
+import requests
+
+
+def get_url():
+    return "https://www.finviz.com"
 
 
 class FinvizHomePage(BasePage):
-
     driver = None
 
-    def __init__(self, driver_param,config_file='config.ini'):
+    def __init__(self, config_file='config.ini'):
         super().__init__(config_file)
         self.login = None
-        driver_param = self.create_firefox_driver()
-        self.driver = driver_param
+        self.driver = self.create_firefox_driver()
 
         # locators
-        self.home = (By.XPATH,'//a[@href="/"]')
-        self.login = (By.XPATH,'//a[@href="/login"]')
+        self.home = (By.XPATH, '//a[@href="/" and text()="Home"]')
+        self.login = (By.XPATH, '//a[@href="/login"]')
         self.search = (By.ID, '_r_1_')
         self.screener = (By.XPATH, '//a[@href="/screener.ashx"]')
 
@@ -29,16 +32,13 @@ class FinvizHomePage(BasePage):
         # temporary xpath to test select dropdown
         self.dividend_yield = (By.XPATH, '//select[@id="fs_fa_div"]')
 
-        self.all_locators = [self.home,self.login,self.search,self.screener]
+        self.all_locators = [self.home, self.login, self.search, self.screener]
 
     def get_driver(self):
         return self.driver
 
     def open(self):
-        self.driver.get(self.get_url())
-
-    def get_url(self):
-        return "https://www.finviz.com"
+        self.driver.get(get_url())
 
     def quit(self):
         self.driver.quit()
@@ -46,12 +46,12 @@ class FinvizHomePage(BasePage):
     def close(self):
         self.driver.close()
 
-    def close_tab(self,tab_number):
+    def close_tab(self, tab_number):
         window_handles = self.driver.window_handles
 
         # point driver at extra tab window_handle (Adobe Adblock Installed Tab) and close it.
         self.driver.switch_to.window(window_handles[tab_number])
-        print("Tab with Label: " + str("'"+self.driver.title+"'") + " Has Been Closed")
+        print("Tab with Label: " + str("'" + self.driver.title + "'") + " Has Been Closed")
         self.close()
 
         # get the updated windows_handles array and point driver at the remaining tab handle - there should  only
@@ -66,15 +66,16 @@ class FinvizHomePage(BasePage):
         self.driver.maximize_window()
 
     def enter_value(self, value):
-        self.driver.find_element(*self.search).send_keys(value+Keys.ENTER)
-
+        self.driver.find_element(*self.search).send_keys(value + Keys.ENTER)
+        firefox_driver = self.driver
         if self.is_etf():
-            return FinvizETFPage(self.driver, value)
+            return FinvizETFPage(firefox_driver, value)
         else:
-            return FinvizStockPage(self.driver,value)
+            return FinvizStockPage(firefox_driver, value)
 
     def click_screener(self):
         self.driver.find_element(*self.screener).click()
+        return ScreenerPage(self.driver)
 
     def click_home(self):
         self.driver.find_element(*self.home).click()
@@ -98,16 +99,43 @@ class FinvizHomePage(BasePage):
             return True
         return False
 
-    def element_exists(self,web_element):
+    def element_exists(self, web_element):
         try:
             self.driver.find_element(*web_element)
         except NoSuchElementException as e:
             print(e)
 
     def create_api_url(self):
-        url = self.driver.current_url
+        url = self.self.driver.current_url
         filter = url.split('?')[1]
         return self.api_url + filter + '&auth=' + self.api_key
+
+    def send_api_request(self):
+        built_url = self.create_api_url()
+        response = requests.get(built_url)
+        open(self.csv_file, "wb").write(response.content)
+
+
+class ScreenerPage:
+
+    def __init__(self, driver):
+        self.driver = driver
+        self.overview = (By.XPATH, "//a[text()='Overview']")
+        self.valuation = (By.XPATH, "//a[text()='Valuation']")
+        self.financial = (By.XPATH, "//a[text()='Financial']")
+        self.ownership = (By.XPATH, "//a[text()='Ownership']")
+
+    def click_overview(self):
+        self.driver.find_element(*self.overview).click()
+
+    def click_valuation(self):
+        self.driver.find_element(*self.valuation).click()
+
+    def click_financial(self):
+        self.driver.find_element(*self.financial).click()
+
+    def click_ownership(self):
+        self.driver.find_element(*self.ownership).click()
 
 
 if __name__ == "__main__":
@@ -117,12 +145,12 @@ if __name__ == "__main__":
     finviz_home_page.close_tab(1)
     finviz_home_page.click_login()
 
-    finviz_home_page.click_screener()
+    screener_page = finviz_home_page.click_screener()
+    screener_page.click_valuation()
 
-    equities_list = ["GOOG","PGR"]
+    equities_list = ["GOOG", "PGR"]
 
     for equity in equities_list:
-
         finviz_equity_page = finviz_home_page.enter_value(equity)
         stock_ticker = finviz_equity_page.ticker
         print("")
@@ -147,4 +175,3 @@ if __name__ == "__main__":
         print("")
 
     fundamentals_table.quit()
-
