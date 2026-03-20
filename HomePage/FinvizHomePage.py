@@ -82,14 +82,16 @@ class FinvizHomePage(BasePage):
         return ScreenerPage(self.driver)
     def click_descriptive(self):
         self.driver.find_element(*self.decriptive).click()
+        return DescriptiveScreener(self.driver)
     def click_fundamental(self):
         self.driver.find_element(*self.fundamental).click()
+        return FundamentalScreener(self.driver)
     def click_etf(self):
         self.driver.find_element(*self.etf).click()
+        return ETFScreener(self.driver)
     def click_technical(self):
         self.driver.find_element(*self.technical).click()
-
-
+        return TechnicalScreener(self.driver)
 
     def click_home(self):
         self.driver.find_element(*self.home).click()
@@ -168,20 +170,46 @@ class DescriptiveScreener:
     def __init__(self, driver):
         self.driver = driver
 
+        self.exchange = (By.XPATH, '//select[@id="fs_exch"]')
+
+    def select_exchange(self, value):
+        select = Select(self.driver.find_element(*self.exchange))
+        select.select_by_visible_text(value)
 class FundamentalScreener:
 
     def __init__(self, driver):
         self.driver = driver
+
+        #locators for Fundamental Screener
+        self.price_to_earning = (By.XPATH, '//select[@id="fs_fa_pe"]')
+
+    def select_ptoe(self,value):
+        select = Select(self.driver.find_element(*self.price_to_earning))
+        select.select_by_visible_text(value)
 
 class TechnicalScreener:
 
     def __init__(self, driver):
         self.driver = driver
 
+        #locators
+        self.performance = (By.XPATH, '//select[@id="fs_ta_perf"]')
+
+    def select_performance(self,value):
+        select = Select(self.driver.find_element(*self.performance))
+        select.select_by_visible_text(value)
+
 class ETFScreener:
 
     def __init__(self, driver):
         self.driver = driver
+
+        #locators
+        self.single_category = (By.XPATH, '//select[@id="fs_etf_category"]')
+
+    def select_single_category(self,value):
+        select = Select(self.driver.find_element(*self.single_category))
+        select.select_by_visible_text(value)
 
 
 if __name__ == "__main__":
@@ -200,10 +228,17 @@ if __name__ == "__main__":
     screener_page.click_financial()
     screener_page.click_ownership()
 
-    finviz_home_page.click_descriptive()
-    finviz_home_page.click_fundamental()
-    finviz_home_page.click_technical()
-    finviz_home_page.click_etf()
+    descriptive_screener = finviz_home_page.click_descriptive()
+    descriptive_screener.select_exchange("AMEX")
+
+    fundamental_screener = finviz_home_page.click_fundamental()
+    fundamental_screener.select_ptoe("Under 25")
+
+    technical_screener = finviz_home_page.click_technical()
+    technical_screener.select_performance("Today +15%")
+
+    etf_screener = finviz_home_page.click_etf()
+    etf_screener.select_single_category("Bonds - Inflation protected")
 
     equities_list = ["GOOG", "PGR"]
 
