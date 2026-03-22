@@ -122,7 +122,7 @@ class FinvizHomePage(BasePage):
             print(e)
 
     def create_api_url(self):
-        url = self.self.driver.current_url
+        url = self.driver.current_url
         filter = url.split('?')[1]
         return self.api_url + filter + '&auth=' + self.api_key
 
@@ -235,7 +235,9 @@ if __name__ == "__main__":
     fundamental_screener.select_ptoe("Under 25")
 
     technical_screener = finviz_home_page.click_technical()
-    technical_screener.select_performance("Today +15%")
+    technical_screener.select_performance("Today +5%")
+
+    finviz_home_page.send_api_request()
 
     etf_screener = finviz_home_page.click_etf()
     etf_screener.select_single_category("Bonds - Inflation protected")
