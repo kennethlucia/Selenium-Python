@@ -54,8 +54,34 @@ def main(input_argument):
     finviz_home_page.click_login()
 
     match input_argument:
-        case "":
-            print("")
+        case "Test-Code":
+            print("Inside Test-Code")
+            finviz_home_page.enter_ticker_values("GOOG,PGR")
+            screener_page = finviz_home_page.click_screener()
+
+            prepended_valuation = screener_page.click_valuation()
+            finviz_home_page.send_api_request(prepended_valuation)
+
+            prepended_technical = screener_page.click_technical()
+            finviz_home_page.send_api_request(prepended_technical)
+
+            prepended_performance = screener_page.click_performance()
+            finviz_home_page.send_api_request(prepended_performance)
+
+            prepended_etfperformance = screener_page.click_etfperformance()
+            finviz_home_page.send_api_request(prepended_etfperformance)
+
+            prepended_overview = screener_page.click_overview()
+            finviz_home_page.send_api_request(prepended_overview)
+
+            prepended_financial = screener_page.click_financial()
+            finviz_home_page.send_api_request(prepended_financial)
+
+            prepended_ownership = screener_page.click_ownership()
+            finviz_home_page.send_api_request(prepended_ownership)
+
+        case _:
+            print("Default Case")
 
 
 class FinvizHomePage(BasePage):
@@ -283,14 +309,6 @@ if __name__ == "__main__":
 
 
     # TODO move navigation flow into main() based on match/case each case is a different flow
-    screener_page = finviz_home_page.click_screener()
-    prepended_valuation = screener_page.click_valuation()
-    prepended_technical = screener_page.click_technical()
-    prepended_performance = screener_page.click_performance()
-    prepended_etfperformance = screener_page.click_etfperformance()
-    prepended_overview = screener_page.click_overview()
-    prepended_financial = screener_page.click_financial()
-    prepended_ownership = screener_page.click_ownership()
 
     descriptive_screener = finviz_home_page.click_descriptive()
     descriptive_screener.select_exchange("AMEX")
@@ -301,7 +319,7 @@ if __name__ == "__main__":
     technical_screener = finviz_home_page.click_technical()
     technical_screener.select_performance("Today +5%")
 
-    finviz_home_page.send_api_request()
+
 
     etf_screener = finviz_home_page.click_etf()
     etf_screener.select_single_category("Bonds - Inflation protected")
