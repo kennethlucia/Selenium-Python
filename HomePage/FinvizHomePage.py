@@ -6,7 +6,11 @@ from selenium.webdriver.support.select import Select
 from BasePage import BasePage
 from FinvizStockPage import FinvizStockPage, FinvizETFPage
 import requests
+
+import argparse
 import sys
+from argparse import ArgumentParser
+from typing import Sequence, Optional
 
 
 def get_url():
@@ -46,42 +50,81 @@ def parse_csv_with_headers(csv_file_path):
 
     return []
 
-def main(input_argument):
+def get_ticker_and_parameter(ticker,parameter,file_path):
+    return parse_csv_with_headers(file_path)
+def main(argv: Optional[Sequence[str]] = None):
+    # 1. Create the ArgumentParser object with a description
+    parser = argparse.ArgumentParser(
+        description="A simple script that greets a user and can use a verbose mode.",
+        prog="my_script"  # Optional: specify a custom program name for help messages
+    )
+
+    # 2. Add arguments (positional and optional)
+    # Positional argument: 'name' is required and has no leading dashes
+    parser.add_argument("screener_name", help="The name of the user to greet.")
+    parser.add_argument("ticker_group", help="")
+
+    # Optional argument: '-v' or '--verbose' acts as a flag
+    parser.add_argument(
+        "-v", "--verbose",
+        action="store_true",  # Stores True if the flag is present, False otherwise
+        help="Increase output verbosity."
+    )
+
+    # 3. Parse the arguments
+    input_args = parser.parse_args(argv)  # Pass argv to make the main function testable
+    # If argv is None, parser.parse_args() automatically looks at sys.argv
+
+    if input_args.verbose:
+        print(f"Screener deployed. {input_args.screener_name}.")
+        print(f"Ticker chosen. {input_args.ticker_group}.")
+
+    print(parser.description)
+
     finviz_home_page = FinvizHomePage('config.ini')
     finviz_home_page.open()
     finviz_home_page.maximize_window()
     finviz_home_page.close_tab(1)
     finviz_home_page.click_login()
 
-    match input_argument:
-        case "Test-Code":
-            print("Inside Test-Code")
-            finviz_home_page.enter_ticker_values("GOOG,PGR")
-            screener_page = finviz_home_page.click_screener()
+    screener_page = finviz_home_page.click_screener()
+    finviz_home_page.enter_ticker_values(input_args.ticker_group)
+    metric_label = None
 
-            prepended_valuation = screener_page.click_valuation()
-            finviz_home_page.send_api_request(prepended_valuation)
+    match input_args.screener_name:
+        case "valuation":
+            print("Looking at Valuation: ")
+            metric_label = screener_page.click_valuation()
 
-            prepended_technical = screener_page.click_technical()
-            finviz_home_page.send_api_request(prepended_technical)
+        case "technical":
+            print("Looking at Technical: ")
+            metric_label = screener_page.click_technical()
 
-            prepended_performance = screener_page.click_performance()
-            finviz_home_page.send_api_request(prepended_performance)
+        case "performance":
+            print("Looking at Performance: ")
+            metric_label = screener_page.click_performance()
 
-            prepended_etfperformance = screener_page.click_etfperformance()
-            finviz_home_page.send_api_request(prepended_etfperformance)
+        case "etf_performance":
+            print("Looking at ETF_Performance: ")
+            metric_label = screener_page.click_etfperformance()
 
-            prepended_overview = screener_page.click_overview()
-            finviz_home_page.send_api_request(prepended_overview)
+        case "overview":
+            print("Looking at Overview: ")
+            metric_label = screener_page.click_overview()
 
-            prepended_financial = screener_page.click_financial()
-            finviz_home_page.send_api_request(prepended_financial)
+        case "financial":
+            print("Looking at Financial: ")
+            metric_label = screener_page.click_financial()
 
-            prepended_ownership = screener_page.click_ownership()
-            finviz_home_page.send_api_request(prepended_ownership)
+        case "ownership":
+            print("Looking at Ownership: ")
+            metric_label = screener_page.click_ownership()
 
         case _:
             print("Default Case")
+
+    if metric_label != None:
+        finviz_home_page.send_api_request(metric_label)
 
 
 class FinvizHomePage(BasePage):
@@ -206,7 +249,8 @@ class FinvizHomePage(BasePage):
 
     def send_api_request(self,metrics):
         # Metrics can be Overview, Value, Financial, etc...
-        export_filename = metrics + "_" + self.csv_file
+
+        export_filename = str(self.csv_file).replace("export.csv",metrics+"_"+"export.csv")
         built_url = self.create_api_url()
         response = requests.get(built_url)
         open(export_filename, "wb").write(response.content)
@@ -300,54 +344,7 @@ class ETFScreener:
 
 
 if __name__ == "__main__":
-
-    if len(sys.argv) < 2:
-        print("Usage: python FinvizHomepage.py <argA>")
-        sys.exit(1)
-    input_argument = sys.argv[1]
-    main(input_argument)
-
-
-    # TODO move navigation flow into main() based on match/case each case is a different flow
-
-    descriptive_screener = finviz_home_page.click_descriptive()
-    descriptive_screener.select_exchange("AMEX")
-
-    fundamental_screener = finviz_home_page.click_fundamental()
-    fundamental_screener.select_ptoe("Under 25")
-
-    technical_screener = finviz_home_page.click_technical()
-    technical_screener.select_performance("Today +5%")
+    main()
 
 
 
-    etf_screener = finviz_home_page.click_etf()
-    etf_screener.select_single_category("Bonds - Inflation protected")
-
-    equities_list = ["GOOG", "PGR"]
-
-    for equity in equities_list:
-        finviz_equity_page = finviz_home_page.enter_search_value(equity)
-        stock_ticker = finviz_equity_page.ticker
-        print("")
-        print(f"Stock Ticker: {stock_ticker}")
-
-        fundamentals_table = finviz_equity_page.get_table()
-
-        price = fundamentals_table.get_parameter("Price")
-        print(f"Price: {price}")
-
-        equity_name = fundamentals_table.get_equity_name()
-        print(f"The Stock's Company Name is: {equity_name}")
-
-        price_to_earnings = fundamentals_table.get_parameter("P/E")
-        print(f"Price to Earnings: {price_to_earnings}")
-
-        earnings = fundamentals_table.get_earnings_date()
-        print(f"{earnings}")
-
-        print(f"{equity_name} is in sector: {finviz_equity_page.get_sector()}")
-        print(f"{equity_name} is in industry: {finviz_equity_page.get_industry()}")
-        print("")
-
-    fundamentals_table.quit()
