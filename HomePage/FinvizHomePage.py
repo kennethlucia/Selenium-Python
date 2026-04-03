@@ -50,8 +50,35 @@ def parse_csv_with_headers(csv_file_path):
 
     return []
 
-def get_ticker_and_parameter(ticker,parameter,file_path):
-    return parse_csv_with_headers(file_path)
+def user_input():
+    while True:
+        try:
+            # 1. Take input and convert to integer
+            user_input = input("Enter Screener name and parameter seperated by a space or scriptinput: ")
+
+            if user_input.lower() == 'exit':
+                print("Goodbye!")
+                break
+            return user_input
+
+        except ValueError:
+            # 3. Handle invalid input (e.g., if the user types 'abc')
+            print("Error: Please enter a valid 4-digit year.\n")
+
+def get_parameter_for_ticker(ticker, parameter, file_path):
+    # Usage example - test_value = get_parameter_for_ticker('"PED"', '"Shares Float"', config_file_path)
+    # Where config_file_path is gotton with:
+    #
+    #       script_path = Path(__file__).parent
+    #       config_file_path = script_path.parent / 'valuation_export.csv'
+    dict_list = parse_csv_with_headers(str(file_path))
+    for a_dictionary in dict_list:
+
+        if a_dictionary.get('"Ticker"') == ticker:
+            value = a_dictionary.get(parameter)
+            return value
+        else:
+            continue
 def main(argv: Optional[Sequence[str]] = None):
     # 1. Create the ArgumentParser object with a description
     parser = argparse.ArgumentParser(
@@ -81,6 +108,17 @@ def main(argv: Optional[Sequence[str]] = None):
 
     print(parser.description)
 
+    screener = None
+    equity = None
+
+    input_params = user_input()
+    if input_params == "scriptinput":
+        screener = input_args.screener_name
+        equity = input_args.ticker_group
+    else:
+        screener = input_params.split(" ")[0]
+        equity = input_params.split(" ")[1]
+
     finviz_home_page = FinvizHomePage('config.ini')
     finviz_home_page.open()
     finviz_home_page.maximize_window()
@@ -88,10 +126,10 @@ def main(argv: Optional[Sequence[str]] = None):
     finviz_home_page.click_login()
 
     screener_page = finviz_home_page.click_screener()
-    finviz_home_page.enter_ticker_values(input_args.ticker_group)
+    finviz_home_page.enter_ticker_values(equity)
     metric_label = None
 
-    match input_args.screener_name:
+    match screener:
         case "valuation":
             print("Looking at Valuation: ")
             metric_label = screener_page.click_valuation()
@@ -123,8 +161,13 @@ def main(argv: Optional[Sequence[str]] = None):
         case _:
             print("Default Case")
 
+    script_path = Path(__file__).parent
+
+
     if metric_label != None:
         finviz_home_page.send_api_request(metric_label)
+        config_file_path = script_path.parent / metric_label + '_export.csv'
+        value = get_parameter_for_ticker(str(input_args.ticker_group), '""', config_file_path )
 
 
 class FinvizHomePage(BasePage):
