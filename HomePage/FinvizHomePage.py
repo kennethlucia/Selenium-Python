@@ -34,10 +34,10 @@ def parse_csv_with_headers(csv_file_path):
     try:
         with open(csv_file_path, 'r') as file:
             # Read and process header line
-            headers = next(file).strip().split(',')
+            headers = [h.strip().strip('"') for h in next(file).strip().split(',')]
             # Process exactly 5 data lines
             return [
-                dict(zip(headers, line.strip().split(',')))
+                dict(zip(headers, [v.strip().strip('"') for v in line.strip().split(',')]))
                 for line in (next(file) for _ in range(lines - 1))
             ]
 
