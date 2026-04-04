@@ -11,6 +11,7 @@ import argparse
 import sys
 from argparse import ArgumentParser
 from typing import Sequence, Optional
+from pathlib import Path
 
 
 def get_url():
@@ -54,7 +55,7 @@ def user_input():
     while True:
         try:
             # 1. Take input and convert to integer
-            user_input = input("Enter Screener name and parameter seperated by a space or scriptinput: ")
+            user_input = input("Enter Screener name and Ticker Symbol seperated by a space or script-input: ")
 
             if user_input.lower() == 'exit':
                 print("Goodbye!")
@@ -65,18 +66,18 @@ def user_input():
             # 3. Handle invalid input (e.g., if the user types 'abc')
             print("Error: Please enter a valid 4-digit year.\n")
 
-def get_parameter_for_ticker(ticker, parameter, file_path):
-    # Usage example - test_value = get_parameter_for_ticker('"PED"', '"Shares Float"', config_file_path)
-    # Where config_file_path is gotton with:
-    #
-    #       script_path = Path(__file__).parent
-    #       config_file_path = script_path.parent / 'valuation_export.csv'
+def print_parameter_for_ticker(ticker, parameter, file_path):
+    value = ''
     dict_list = parse_csv_with_headers(str(file_path))
     for a_dictionary in dict_list:
 
-        if a_dictionary.get('"Ticker"') == ticker:
-            value = a_dictionary.get(parameter)
-            return value
+        if a_dictionary.get('Ticker') == ticker:
+            if parameter != 'All':
+                value = a_dictionary.get(parameter)
+                print(f"{parameter} - " + value)
+            else:
+                key_pairs = a_dictionary.items()
+                var = {print(x) for x in key_pairs}
         else:
             continue
 def main(argv: Optional[Sequence[str]] = None):
@@ -112,7 +113,7 @@ def main(argv: Optional[Sequence[str]] = None):
     equity = None
 
     input_params = user_input()
-    if input_params == "scriptinput":
+    if input_params == "script-input":
         screener = input_args.screener_name
         equity = input_args.ticker_group
     else:
@@ -161,13 +162,9 @@ def main(argv: Optional[Sequence[str]] = None):
         case _:
             print("Default Case")
 
-    script_path = Path(__file__).parent
-
-
     if metric_label != None:
-        finviz_home_page.send_api_request(metric_label)
-        config_file_path = script_path.parent / metric_label + '_export.csv'
-        value = get_parameter_for_ticker(str(input_args.ticker_group), '""', config_file_path )
+        config_file_path = finviz_home_page.send_api_request(metric_label)
+        value = print_parameter_for_ticker(str(input_args.ticker_group), 'Sector', config_file_path )
 
 
 class FinvizHomePage(BasePage):
@@ -297,6 +294,7 @@ class FinvizHomePage(BasePage):
         built_url = self.create_api_url()
         response = requests.get(built_url)
         open(export_filename, "wb").write(response.content)
+        return export_filename
 
 
 class ScreenerPage:
