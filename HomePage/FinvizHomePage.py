@@ -52,10 +52,15 @@ def parse_csv_with_headers(csv_file_path):
     return []
 
 def user_input():
+    valid_screeners = ["overview","financial","ownership","performance","technical","valuation","etf_performance"]
     while True:
         try:
             # 1. Take input and convert to integer
             user_input = input("Enter Screener name and Ticker Symbol seperated by a space or script-input: ")
+
+            if user_input != "script-input":
+               a_screener = user_input.split(" ")[0]
+               position = valid_screeners.index(a_screener)
 
             if user_input.lower() == 'exit':
                 print("Goodbye!")
@@ -63,8 +68,12 @@ def user_input():
             return user_input
 
         except ValueError:
-            # 3. Handle invalid input (e.g., if the user types 'abc')
-            print("Error: Please enter a valid 4-digit year.\n")
+            # 3.
+            valid_input = "overview financial ownership performance technical valuation etf_performance script-input"
+            print()
+            print("Error: Please enter one of these values.\n")
+            print(valid_input)
+            print()
 
 def print_parameter_for_ticker(ticker, parameter, file_path):
     value = ''
@@ -72,14 +81,21 @@ def print_parameter_for_ticker(ticker, parameter, file_path):
     for a_dictionary in dict_list:
 
         if a_dictionary.get('Ticker') == ticker:
+            keys = a_dictionary.keys()
+            options = {print(y + " *", end=" ") for y in keys}
+            print("All",end=" ")
+            print()
+            parameter = input("Enter a parameter from the options above: ")
             if parameter != 'All':
                 value = a_dictionary.get(parameter)
+                print()
                 print(f"{parameter} - " + value)
             else:
                 key_pairs = a_dictionary.items()
                 var = {print(x) for x in key_pairs}
         else:
             continue
+    return keys
 def main(argv: Optional[Sequence[str]] = None):
     # 1. Create the ArgumentParser object with a description
     parser = argparse.ArgumentParser(
@@ -164,7 +180,7 @@ def main(argv: Optional[Sequence[str]] = None):
 
     if metric_label != None:
         config_file_path = finviz_home_page.send_api_request(metric_label)
-        value = print_parameter_for_ticker(str(input_args.ticker_group), 'Sector', config_file_path )
+        keys = print_parameter_for_ticker(str(input_args.ticker_group), 'Sector', config_file_path )
 
 
 class FinvizHomePage(BasePage):
