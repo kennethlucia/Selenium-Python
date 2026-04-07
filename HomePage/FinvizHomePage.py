@@ -95,14 +95,14 @@ def print_parameter_for_ticker(ticker, parameter, file_path):
 def main(argv: Optional[Sequence[str]] = None):
     # 1. Create the ArgumentParser object with a description
     parser = argparse.ArgumentParser(
-        description="A simple script that greets a user and can use a verbose mode.",
+        description="A script shows stock screener parameters for a stock Ticker.",
         prog="my_script"  # Optional: specify a custom program name for help messages
     )
 
     # 2. Add arguments (positional and optional)
     # Positional argument: 'name' is required and has no leading dashes
-    parser.add_argument("screener_name", help="The name of the user to greet.")
-    parser.add_argument("ticker_group", help="")
+    parser.add_argument("screener_name", help="The name of the screener.")
+    parser.add_argument("ticker_group", help="The Ticker symbol.")
 
     # Optional argument: '-v' or '--verbose' acts as a flag
     parser.add_argument(
