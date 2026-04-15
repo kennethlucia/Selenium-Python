@@ -176,7 +176,7 @@ def main(argv: Optional[Sequence[str]] = None):
 
     if metric_label != None:
         config_file_path = finviz_home_page.send_api_request(metric_label)
-        keys = print_parameter_for_ticker(str(input_args.ticker_group), 'Sector', config_file_path )
+        keys = print_parameter_for_ticker(equity, 'Sector', config_file_path )
 class FinvizHomePage(BasePage):
     driver = None
 
