@@ -53,7 +53,10 @@ def user_input():
     while True:
         try:
             # 1. Take input and convert to integer
-            user_input = input("Enter Screener name and Ticker Symbol seperated by a space or script-input: ")
+            options = {print(y + " *", end=" ") for y in valid_screeners}
+            print()
+            user_input = input("Enter A Screener name from above and Ticker Symbol seperated by a space or Enter 'script-input:' ")
+
 
             if user_input != "script-input":
                a_screener = user_input.split(" ")[0]
@@ -177,6 +180,7 @@ def main(argv: Optional[Sequence[str]] = None):
     if metric_label != None:
         config_file_path = finviz_home_page.send_api_request(metric_label)
         keys = print_parameter_for_ticker(equity, 'Sector', config_file_path )
+        finviz_home_page.quit()
 class FinvizHomePage(BasePage):
     driver = None
 
