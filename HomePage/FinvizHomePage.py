@@ -193,7 +193,7 @@ class FinvizHomePage(BasePage):
         self.home = (By.XPATH, '//a[@href="/" and text()="Home"]')
         self.login = (By.XPATH, '//a[@href="/login"]')
         self.search = (By.ID, '_r_1_')
-        self.screener = (By.XPATH, '//a[@href="/screener.ashx"]')
+        self.screener = (By.XPATH, '//a[@href="/screener"]')
         self.decriptive = (By.XPATH, "//div[text()='Descriptive']")
         self.fundamental = (By.XPATH, "//div[text()='Fundamental']")
         self.technical = (By.XPATH, "//div[text()='Technical']")
