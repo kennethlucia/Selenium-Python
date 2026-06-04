@@ -128,14 +128,14 @@ def main(argv: Optional[Sequence[str]] = None):
     equity = None
 
     input_params = user_input()
-    if input_params == "script-input":
+    if input_params == "script-input": # Input set in Run Configuration
         screener = input_args.screener_name
         equity = input_args.ticker_group
     else:
-        screener = input_params.split(" ")[0]
+        screener = input_params.split(" ")[0]   # Input set at Console
         equity = input_params.split(" ")[1]
 
-    finviz_home_page = FinvizHomePage('config.ini')
+    finviz_home_page = FinvizHomePage('config.ini')  # Inherits the Configuration from BasePage.py
     finviz_home_page.open()
     finviz_home_page.maximize_window()
     finviz_home_page.close_tab(1)
@@ -179,6 +179,9 @@ def main(argv: Optional[Sequence[str]] = None):
 
     if metric_label != None:
         config_file_path = finviz_home_page.send_api_request(metric_label)
+
+        # The 'Sector' parameter gets overwritten with more console input within
+        # print_parameter_for_ticker()
         keys = print_parameter_for_ticker(equity, 'Sector', config_file_path )
         finviz_home_page.quit()
 class FinvizHomePage(BasePage):
