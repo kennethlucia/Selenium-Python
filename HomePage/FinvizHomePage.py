@@ -191,6 +191,7 @@ class FinvizHomePage(BasePage):
         super().__init__(config_file)
         self.login = None
         self.driver = self.create_firefox_driver()
+        self.driver.delete_all_cookies()
 
         # locators
         self.home = (By.XPATH, '//a[@href="/" and text()="Home"]')
