@@ -6,6 +6,7 @@ from selenium.webdriver.support.select import Select
 from BasePage import BasePage
 from FinvizStockPage import FinvizStockPage, FinvizETFPage
 import requests
+import logging
 
 import argparse
 import sys
@@ -95,6 +96,20 @@ def print_parameter_for_ticker(ticker, parameter, file_path):
         else:
             continue
     return keys
+
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+
+def log_attribute_name_by_value(locator_tuple):
+        """Scans the instance's attributes in real time to find and log the name."""
+        # self.__dict__ contains all attributes defined on this instance
+        for attr_name, attr_value in self.__dict__.items():
+            if attr_value == locator_tuple:
+                logging.info(f"Interacting with element locator: '{attr_name}'")
+                return attr_name
+
+        logging.warning(f"Locator tuple {locator_tuple} not found in attributes.")
+        return None
+
 def main(argv: Optional[Sequence[str]] = None):
     # 1. Create the ArgumentParser object with a description
     parser = argparse.ArgumentParser(
@@ -139,6 +154,8 @@ def main(argv: Optional[Sequence[str]] = None):
     finviz_home_page.open()
     finviz_home_page.maximize_window()
     finviz_home_page.close_tab(1)
+    finviz_home_page.test_for_bad_locators()
+
     finviz_home_page.click_login()
 
     screener_page = finviz_home_page.click_screener()
@@ -197,7 +214,7 @@ class FinvizHomePage(BasePage):
         self.home = (By.XPATH, '//a[@href="/" and text()="Home"]')
         self.login = (By.XPATH, '//a[@href="/login"]')
         self.search = (By.ID, '_r_1_')
-        self.screener = (By.XPATH, '//a[@href="/screener"]')
+        self.screener = (By.XPATH, '//a[@href="/screener/stocks"]')
         self.decriptive = (By.XPATH, "//div[text()='Descriptive']")
         self.fundamental = (By.XPATH, "//div[text()='Fundamental']")
         self.technical = (By.XPATH, "//div[text()='Technical']")
@@ -210,8 +227,6 @@ class FinvizHomePage(BasePage):
 
         # temporary xpath to test select dropdown
         self.dividend_yield = (By.XPATH, '//select[@id="fs_fa_div"]')
-
-        self.all_locators = [self.home, self.login, self.search, self.screener]
 
     def get_driver(self):
         return self.driver
@@ -238,8 +253,6 @@ class FinvizHomePage(BasePage):
         window_handles = self.driver.window_handles
         self.driver.switch_to.window(window_handles[0])
 
-        for a_locator in self.all_locators:
-            self.element_exists(a_locator)
 
     def maximize_window(self):
         self.driver.maximize_window()
@@ -313,6 +326,23 @@ class FinvizHomePage(BasePage):
         response = requests.get(built_url)
         open(export_filename, "wb").write(response.content)
         return export_filename
+
+    def test_for_bad_locators(self):
+        self.problem_locators = []
+
+        for a_element_key, a_element_value in self.__dict__.items():
+            test = a_element_value.__class__.__name__
+            if test == "tuple":
+                if len(self.driver.find_elements(*a_element_value)) < 1:
+                    print(a_element_key)
+                    self.problem_locators.append(a_element_value)
+            else:
+                continue
+        list_size = len(self.problem_locators)
+        if len(self.problem_locators) > 0:
+            self.driver.quit()
+
+
 class ScreenerPage:
 
     def __init__(self, driver):
