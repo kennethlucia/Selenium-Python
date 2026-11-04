@@ -7,6 +7,7 @@ from BasePage import BasePage
 from FinvizStockPage import FinvizStockPage, FinvizETFPage
 import requests
 import logging
+import json
 
 import argparse
 import sys
@@ -110,6 +111,10 @@ def log_attribute_name_by_value(locator_tuple):
         logging.warning(f"Locator tuple {locator_tuple} not found in attributes.")
         return None
 
+def to_self_str(attr_name: str) -> str:
+    return f"self.{attr_name}"
+
+
 def main(argv: Optional[Sequence[str]] = None):
     # 1. Create the ArgumentParser object with a description
     parser = argparse.ArgumentParser(
@@ -154,7 +159,7 @@ def main(argv: Optional[Sequence[str]] = None):
     finviz_home_page.open()
     finviz_home_page.maximize_window()
     finviz_home_page.close_tab(1)
-    finviz_home_page.test_for_bad_locators()
+   # finviz_home_page.test_for_bad_locators()
 
     finviz_home_page.click_login()
 
@@ -209,12 +214,15 @@ class FinvizHomePage(BasePage):
         self.login = None
         self.driver = self.create_firefox_driver()
         self.driver.delete_all_cookies()
+        self.json = self.load_json_data_into_memory()
 
-        # locators
-        self.home = (By.XPATH, '//a[@href="/" and text()="Home"]')
-        self.login = (By.XPATH, '//a[@href="/login"]')
+        # home page locators
+        #self.home = (By.XPATH, '//a[@href="/" and text()="Home"]')
+        #self.login = (By.XPATH, '//a[@href="/login"]')
         self.search = (By.ID, '_r_1_')
-        self.screener = (By.XPATH, '//a[@href="/screener/stocks"]')
+        #self.screener = (By.XPATH, '//a[@href="/screener/stocks"]')
+
+        # screener page locators
         self.decriptive = (By.XPATH, "//div[text()='Descriptive']")
         self.fundamental = (By.XPATH, "//div[text()='Fundamental']")
         self.technical = (By.XPATH, "//div[text()='Technical']")
@@ -228,8 +236,13 @@ class FinvizHomePage(BasePage):
         # temporary xpath to test select dropdown
         self.dividend_yield = (By.XPATH, '//select[@id="fs_fa_div"]')
 
+        locator_page_map = {self.home : "Home"}
+
     def get_driver(self):
         return self.driver
+
+
+
 
     def open(self):
         self.driver.get(get_url())
@@ -270,7 +283,12 @@ class FinvizHomePage(BasePage):
         self.driver.find_element(*self.ticker_button).click()
 
     def click_screener(self):
-        self.driver.find_element(*self.screener).click()
+        try:
+           self.screener = self.click_element("self.screener")
+           self.driver.find_element(*self.screener).click()
+        except ValueError:
+           self.quit()
+
         return ScreenerPage(self.driver)
     def click_descriptive(self):
         self.driver.find_element(*self.decriptive).click()
@@ -292,6 +310,8 @@ class FinvizHomePage(BasePage):
         from HomePage.LoginPage import LoginPage
 
         if not self.is_in_account():
+
+            self.login = (By.XPATH, self.get_locator("self.login"))
             self.driver.find_element(*self.login).click()
             return LoginPage(self.driver)
 
