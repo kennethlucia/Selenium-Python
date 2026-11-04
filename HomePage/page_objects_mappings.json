@@ -1,0 +1,32 @@
+{
+  "pages": [
+
+      "Home Page", {"it-exists-xpath": ""},
+      [
+        "Home", {
+          "python-attribute" : "self.home",
+          "xpath": "//a[@href=\"/\" and text()=\"Home\"]"
+        },
+        "Login",{
+          "python-attribute" : "self.login",
+          "xpath": "//a[@href=\"/login\"]"
+        },
+        "Screener",
+        {
+          "python-attribute": "self.screener",
+          "xpath": "//a[@href=\"/screener/stocks\"]"
+        }
+      ],
+      "Stock Screener Page" ,
+      [
+        {
+          "python-attribute" : "self.description",
+          "xpath": "//a[@href=\"/\" and text()=\"Description\"]"
+        },
+        {
+          "python-attribute" : "self.overview",
+          "xpath": "//a[@href=\"/\" and text()=\"Overview\"]"
+        }
+      ]
+  ]
+}
