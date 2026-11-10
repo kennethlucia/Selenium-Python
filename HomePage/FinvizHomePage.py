@@ -15,6 +15,16 @@ from argparse import ArgumentParser
 from typing import Sequence, Optional
 from pathlib import Path
 
+# Sample nested JSON payload
+json_data = {
+    "status": "success",
+    "metadata": {"version": "2.1"},
+    "home_page": [
+        {"id": "self.home", "element": {"name": "Home_Button", "xpath": "//a[@href=\"/\" and text()=\"Home\"]"}},
+        {"id": "self.login", "element": {"name": "Login_Button", "xpath": '//a[@href="/login"]'}}
+    ]
+}
+
 def get_url():
     return "https://www.finviz.com"
 def parse_csv_with_headers(csv_file_path):
@@ -211,14 +221,11 @@ class FinvizHomePage(BasePage):
 
     def __init__(self, config_file='config.ini'):
         super().__init__(config_file)
-        self.login = None
         self.driver = self.create_firefox_driver()
         self.driver.delete_all_cookies()
         self.json = self.load_json_data_into_memory()
 
         # home page locators
-        #self.home = (By.XPATH, '//a[@href="/" and text()="Home"]')
-        #self.login = (By.XPATH, '//a[@href="/login"]')
         self.search = (By.ID, '_r_1_')
         #self.screener = (By.XPATH, '//a[@href="/screener/stocks"]')
 
@@ -236,13 +243,18 @@ class FinvizHomePage(BasePage):
         # temporary xpath to test select dropdown
         self.dividend_yield = (By.XPATH, '//select[@id="fs_fa_div"]')
 
-        locator_page_map = {self.home : "Home"}
+        self.locator_map = self.get_homepage_locator_map(json_data)
+
+        for key in self.locator_map.keys():
+            temp_tuple = (By.XPATH,self.locator_map.get(key))
+            setattr(self, key.split(".")[1], temp_tuple)
+
+        # setattr(self, 'home', (By.xpath, xpath))
+
+        print()
 
     def get_driver(self):
         return self.driver
-
-
-
 
     def open(self):
         self.driver.get(get_url())
@@ -311,7 +323,7 @@ class FinvizHomePage(BasePage):
 
         if not self.is_in_account():
 
-            self.login = (By.XPATH, self.get_locator("self.login"))
+            #self.login = (By.XPATH, self.get_locator("self.login"))
             self.driver.find_element(*self.login).click()
             return LoginPage(self.driver)
 
@@ -361,6 +373,19 @@ class FinvizHomePage(BasePage):
         list_size = len(self.problem_locators)
         if len(self.problem_locators) > 0:
             self.driver.quit()
+
+    def get_homepage_locator_map(self, json_string: dict) -> dict:
+
+        # Target: Flatten and restructure into {user_id: user_role}
+        # We use .get() defensively inside the comprehension to handle missing nested fields safely
+        # user_roles is defined as a dictionary because of { ...}
+        home_locators = {
+            web_element.get("id"): web_element.get("element", {}).get("xpath", "Unknown")
+            # users returns a list, thus get("users", [])
+            for web_element in json_data.get("home_page", [])
+        }
+
+        return home_locators
 
 
 class ScreenerPage:

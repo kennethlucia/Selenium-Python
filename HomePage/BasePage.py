@@ -24,6 +24,7 @@ class BasePage:
         self.csv_file = script_dir.parent / 'export.csv'
         self.api_url = 'https://elite.finviz.com/export.ashx?'
         self.driver = None
+        self.generic_element = None
 
     def create_firefox_driver(self):
         # Get GeckoDriver path from INI file
@@ -53,6 +54,9 @@ class BasePage:
         self.driver = driver
         return driver
 
+    def quit(self):
+        self.driver.quit()
+
     def get_user_login(self):
         self.user = self.config.get('user', 'username')
         self.password = self.config.get('password', 'password')
@@ -63,12 +67,19 @@ class BasePage:
             return data
 
     def click_element(self,locator):
-        if self.get_locator(locator) is None:
-            raise ValueError
+
+        locator_tuple = (By.XPATH, self.get_locator(locator))
+        if len(self.driver.find_elements(*locator_tuple)) > 0:
+            self.driver.find_element(*locator_tuple)
         else:
-            locator_tuple = (By.XPATH, self.get_locator(locator))
-            self.driver.find_element(*locator_tuple).click()
-            return locator_tuple
+            raise ValueError
+
+    def try_click(self,locator):
+        try:
+            self.generic_element = self.click_element(locator)
+            #return LoginPage(self.driver)
+        except ValueError:
+            self.quit()
 
     def get_locator(self, search_for_attribute):
         # 1. Read and parse the JSON file directly into a Python structure
@@ -114,7 +125,7 @@ class BasePage:
                     # Scenario B: Component defined directly as a standalone dict object
                     elif isinstance(item, dict):
                         parsed_pages[current_page_name].append({
-                            "label": "Generic Element",  # Default label since a string title wasn't provided
+                            "label": item.get("python-attribute"),  # Default label since a string title wasn't provided
                             "python_attribute": item.get("python-attribute"),
                             "xpath": item.get("xpath")
                         })
@@ -124,11 +135,6 @@ class BasePage:
                             return found_xpath
 
                         idx += 1  # Advance past the dict
-        if found_xpath is None:
-           init(autoreset=True)
-           temp_string = json.dumps(parsed_pages, indent=4)
-           temp_string.replace(search_for_attribute,Fore.RED + search_for_attribute)
-           print(temp_string)
-        else:
-           # 5. Output the neatly parsed structural dictionary
-           print(json.dumps(parsed_pages, indent=4))
+
+            # 5. Output the neatly parsed structural dictionary
+            print(json.dumps(parsed_pages, indent=4))
