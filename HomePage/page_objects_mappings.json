@@ -4,5 +4,5 @@
     "home_page": [
         {"id": "self.home", "element": {"name": "Home_Button", "xpath": "//a[@href=\"/\" and text()=\"Home\"]"}},
         {"id": "self.login", "element": {"name": "Login_Button", "xpath": "//a[@href=\"/login\"]"}}
-    ]
+        ]
 }
