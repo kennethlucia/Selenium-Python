@@ -243,7 +243,7 @@ class FinvizHomePage(BasePage):
         # temporary xpath to test select dropdown
         self.dividend_yield = (By.XPATH, '//select[@id="fs_fa_div"]')
 
-        self.locator_map = self.get_homepage_locator_map(json_data)
+        self.locator_map = self.get_homepage_locator_map(self.json)
 
         for key in self.locator_map.keys():
             temp_tuple = (By.XPATH,self.locator_map.get(key))
